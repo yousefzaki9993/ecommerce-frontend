@@ -1,0 +1,96 @@
+/* Mobile First Approach */
+@media (max-width: 767px) {
+    /* Navigation */
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    /* Product Grid */
+    .product-card {
+        margin-bottom: 20px;
+    }
+    
+    /* Cart Page */
+    .cart-item {
+        flex-direction: column;
+    }
+    
+    /* Checkout Process */
+    .checkout-steps .step {
+        font-size: 0.8rem;
+    }
+}
+
+/* Tablet Styles */
+@media (min-width: 768px) and (max-width: 991px) {
+    /* Product Grid */
+    .col-md-4 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    
+    /* Dashboard */
+    .stat-card {
+        margin-bottom: 15px;
+    }
+}
+
+/* Admin Panel Specific */
+@media (max-width: 991px) {
+    /* Admin Navigation */
+    .admin-sidebar {
+        position: static;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .admin-content {
+        margin-left: 0;
+    }
+    
+    /* Data Tables */
+    .admin-table {
+        font-size: 0.9rem;
+    }
+    
+    .admin-table th, 
+    .admin-table td {
+        padding: 8px;
+    }
+}
+
+/* Desktop Overrides */
+@media (min-width: 992px) {
+    /* Admin Layout */
+    .admin-sidebar {
+        position: fixed;
+        height: 100vh;
+    }
+    
+    .admin-content {
+        margin-left: 250px;
+    }
+    
+    /* Forms */
+    .admin-form {
+        max-width: 800px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print, 
+    .navbar, 
+    .footer {
+        display: none !important;
+    }
+    
+    body {
+        padding: 0;
+        font-size: 12pt;
+    }
+    
+    .admin-report {
+        width: 100%;
+    }
+}

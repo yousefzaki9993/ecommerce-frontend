@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEase - Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation (same as dashboard.html) -->
+    
+    <!-- Profile Section -->
+    <section class="profile py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <!-- Sidebar (same as dashboard.html) -->
+                </div>
+                
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="mb-0">Profile Information</h4>
+                        </div>
+                        <div class="card-body">
+                            <form id="profileForm">
+                                <div class="row mb-4">
+                                    <div class="col-md-3">
+                                        <div class="profile-picture">
+                                            <img src="assets/profile-pic.jpg" alt="Profile Picture" class="img-thumbnail mb-2" id="profileImage">
+                                            <div class="d-grid">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" id="changePictureBtn">
+                                                    Change Picture
+                                                </button>
+                                                <input type="file" id="profilePictureInput" accept="image/*" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="profileFirstName" class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="profileFirstName" value="John">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="profileLastName" class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="profileLastName" value="Doe">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="profileEmail" class="form-label">Email Address</label>
+                                            <input type="email" class="form-control" id="profileEmail" value="john.doe@example.com" readonly>
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="profilePhone" class="form-label">Phone Number</label>
+                                            <input type="tel" class="form-control" id="profilePhone" value="(555) 123-4567">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="profileBio" class="form-label">Bio</label>
+                                    <textarea class="form-control" id="profileBio" rows="3">E-commerce enthusiast and tech lover.</textarea>
+                                </div>
+                                
+                                <div class="text-end">
+                                    <button type="button" class="btn btn-outline-secondary me-2" id="cancelProfileChanges">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn btn-primary" id="saveProfileChanges">
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h4 class="mb-0">Address Book</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <div class="address-card">
+                                        <div class="address-header">
+                                            <h5>Primary Address</h5>
+                                            <div class="address-actions">
+                                                <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                                <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                            </div>
+                                        </div>
+                                        <div class="address-body">
+                                            <p>John Doe</p>
+                                            <p>123 Main Street</p>
+                                            <p>Apt 4B</p>
+                                            <p>New York, NY 10001</p>
+                                            <p>United States</p>
+                                            <p>Phone: (555) 123-4567</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-4">
+                                    <div class="address-card">
+                                        <div class="address-header">
+                                            <h5>Secondary Address</h5>
+                                            <div class="address-actions">
+                                                <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                                <button class="btn btn-sm btn-outline-danger">Remove</button>
+                                            </div>
+                                        </div>
+                                        <div class="address-body">
+                                            <p>John Doe</p>
+                                            <p>456 Oak Avenue</p>
+                                            <p>Boston, MA 02108</p>
+                                            <p>United States</p>
+                                            <p>Phone: (555) 987-6543</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-outline-primary" id="addNewAddressBtn">
+                                <i class="fas fa-plus me-2"></i>Add New Address
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer (same as index.html) -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

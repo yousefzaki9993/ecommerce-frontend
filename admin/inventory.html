@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Inventory Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .admin-sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            background-color: #212529;
+            color: white;
+        }
+        .admin-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .inventory-card {
+            transition: transform 0.2s;
+        }
+        .inventory-card:hover {
+            transform: translateY(-5px);
+        }
+        .low-stock {
+            background-color: #fff3cd !important;
+        }
+        @media (max-width: 991px) {
+            .admin-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .admin-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-sidebar p-3">
+        <h4>ShopEase Admin</h4>
+        <hr>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link text-white-50" href="products.html">
+                    <i class="bi bi-box-seam"></i> Products
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white-50" href="orders.html">
+                    <i class="bi bi-receipt"></i> Orders
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active text-white" href="inventory.html">
+                    <i class="bi bi-clipboard-data"></i> Inventory
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="admin-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Inventory Management</h2>
+            <button class="btn btn-primary" id="addStockBtn">
+                <i class="bi bi-plus-lg"></i> Add Stock
+            </button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card bg-primary text-white inventory-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Products</h5>
+                        <h2 class="card-text" id="totalProducts">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-success text-white inventory-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">In Stock</h5>
+                        <h2 class="card-text" id="totalInStock">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card bg-warning text-dark inventory-card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Low Stock</h5>
+                        <h2 class="card-text" id="totalLowStock">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Inventory Items</h5>
+                    <div class="input-group" style="width: 300px;">
+                        <input type="text" class="form-control" placeholder="Search inventory..." id="inventorySearch">
+                        <button class="btn btn-outline-secondary" type="button" id="searchInventoryBtn">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Product Name</th>
+                                <th>Current Stock</th>
+                                <th>Threshold</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Inventory items will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Stock Modal -->
+        <div class="modal fade" id="inventoryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="inventoryModalTitle">Add Stock</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="inventoryForm">
+                            <input type="hidden" id="inventoryProductId">
+                            <div class="mb-3">
+                                <label for="inventoryProduct" class="form-label">Product</label>
+                                <select class="form-select" id="inventoryProduct" required>
+                                    <option value="">Select Product</option>
+                                    <!-- Products will be loaded here -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="stockQuantity" class="form-label">Quantity to Add</label>
+                                <input type="number" class="form-control" id="stockQuantity" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="stockThreshold" class="form-label">Low Stock Threshold</label>
+                                <input type="number" class="form-control" id="stockThreshold" min="1" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="saveInventoryBtn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inventoryModal = new bootstrap.Modal('#inventoryModal');
+            const inventoryTable = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
+            const inventoryProductSelect = document.getElementById('inventoryProduct');
+            
+            // Sample inventory data
+            let inventory = [
+                {
+                    productId: 1,
+                    productName: 'Premium Wireless Headphones',
+                    currentStock: 45,
+                    threshold: 10,
+                    lastUpdated: '2023-06-10'
+                },
+                {
+                    productId: 2,
+                    productName: 'Smart Watch Pro',
+                    currentStock: 5,
+                    threshold: 10,
+                    lastUpdated: '2023-06-12'
+                },
+                {
+                    productId: 3,
+                    productName: 'Wireless Charger',
+                    currentStock: 32,
+                    threshold: 15,
+                    lastUpdated: '2023-06-08'
+                }
+            ];
+            
+            // Sample product data for dropdown
+            const products = [
+                { id: 1, name: 'Premium Wireless Headphones' },
+                { id: 2, name: 'Smart Watch Pro' },
+                { id: 3, name: 'Wireless Charger' },
+                { id: 4, name: 'Bluetooth Speaker' }
+            ];
+            
+            // Load inventory
+            function loadInventory(searchTerm = '') {
+                inventoryTable.innerHTML = '';
+                
+                let filteredInventory = inventory;
+                
+                if (searchTerm) {
+                    filteredInventory = filteredInventory.filter(item => 
+                        item.productName.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+                
+                filteredInventory.forEach(item => {
+                    const isLowStock = item.currentStock <= item.threshold;
+                    const row = inventoryTable.insertRow();
+                    if (isLowStock) row.classList.add('low-stock');
+                    
+                    row.innerHTML = `
+                        <td>${item.productId}</td>
+                        <td>${item.productName}</td>
+                        <td>${item.currentStock}</td>
+                        <td>${item.threshold}</td>
+                        <td>
+                            <span class="badge ${isLowStock ? 'bg-warning' : 'bg-success'}">
+                                ${isLowStock ? 'Low Stock' : 'In Stock'}
+                            </span>
+                        </td>
+                        <td>${item.lastUpdated}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary restock-btn" data-id="${item.productId}">
+                                <i class="bi bi-box-arrow-in-down"></i> Restock
+                            </button>
+                        </td>
+                    `;
+                });
+                
+                // Add event listeners to restock buttons
+                document.querySelectorAll('.restock-btn').forEach(btn => {
+                    btn.addEventListener('click', restockItem);
+                });
+                
+                // Update summary cards
+                updateSummaryCards();
+            }
+            
+            // Update summary cards
+            function updateSummaryCards() {
+                document.getElementById('totalProducts').textContent = inventory.length;
+                
+                const totalInStock = inventory.reduce((sum, item) => sum + item.currentStock, 0);
+                document.getElementById('totalInStock').textContent = totalInStock;
+                
+                const totalLowStock = inventory.filter(item => item.currentStock <= item.threshold).length;
+                document.getElementById('totalLowStock').textContent = totalLowStock;
+            }
+            
+            // Load products into select dropdown
+            function loadProductDropdown() {
+                inventoryProductSelect.innerHTML = '<option value="">Select Product</option>';
+                products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = product.name;
+                    inventoryProductSelect.appendChild(option);
+                });
+            }
+            
+            // Add stock button
+            document.getElementById('addStockBtn').addEventListener('click', function() {
+                document.getElementById('inventoryModalTitle').textContent = 'Add Stock';
+                document.getElementById('inventoryForm').reset();
+                document.getElementById('inventoryProductId').value = '';
+                loadProductDropdown();
+                inventoryModal.show();
+            });
+            
+            // Restock item
+            function restockItem(e) {
+                const productId = parseInt(e.currentTarget.getAttribute('data-id'));
+                const inventoryItem = inventory.find(item => item.productId === productId);
+                const product = products.find(p => p.id === productId);
+                
+                if (inventoryItem && product) {
+                    document.getElementById('inventoryModalTitle').textContent = 'Restock Item';
+                    document.getElementById('inventoryProductId').value = inventoryItem.productId;
+                    document.getElementById('inventoryProduct').value = inventoryItem.productId;
+                    document.getElementById('stockQuantity').value = '';
+                    document.getElementById('stockThreshold').value = inventoryItem.threshold;
+                    
+                    // Disable product selection for restocking
+                    document.getElementById('inventoryProduct').disabled = true;
+                    
+                    inventoryModal.show();
+                }
+            }
+            
+            // Save inventory changes
+            document.getElementById('saveInventoryBtn').addEventListener('click', function() {
+                if (document.getElementById('inventoryForm').checkValidity()) {
+                    const productId = document.getElementById('inventoryProductId').value 
+                        ? parseInt(document.getElementById('inventoryProductId').value)
+                        : parseInt(document.getElementById('inventoryProduct').value);
+                    
+                    const quantity = parseInt(document.getElementById('stockQuantity').value);
+                    const threshold = parseInt(document.getElementById('stockThreshold').value);
+                    const product = products.find(p => p.id === productId);
+                    
+                    if (product) {
+                        const existingItemIndex = inventory.findIndex(item => item.productId === productId);
+                        
+                        if (existingItemIndex !== -1) {
+                            // Update existing inventory item
+                            inventory[existingItemIndex].currentStock += quantity;
+                            inventory[existingItemIndex].threshold = threshold;
+                            inventory[existingItemIndex].lastUpdated = new Date().toISOString().split('T')[0];
+                        } else {
+                            // Add new inventory item
+                            inventory.push({
+                                productId: productId,
+                                productName: product.name,
+                                currentStock: quantity,
+                                threshold: threshold,
+                                lastUpdated: new Date().toISOString().split('T')[0]
+                            });
+                        }
+                        
+                        loadInventory();
+                        inventoryModal.hide();
+                        document.getElementById('inventoryProduct').disabled = false;
+                    }
+                } else {
+                    document.getElementById('inventoryForm').reportValidity();
+                }
+            });
+            
+            // Search inventory
+            document.getElementById('searchInventoryBtn').addEventListener('click', function() {
+                const searchTerm = document.getElementById('inventorySearch').value;
+                loadInventory(searchTerm);
+            });
+            
+            document.getElementById('inventorySearch').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const searchTerm = document.getElementById('inventorySearch').value;
+                    loadInventory(searchTerm);
+                }
+            });
+            
+            // Initial load
+            loadInventory();
+        });
+    </script>
+</body>
+</html>
