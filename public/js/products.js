@@ -45,46 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Load featured products
-function loadFeaturedProducts() {
+async function loadFeaturedProducts() {
     // In a real app, you would fetch these from your backend API
-    var featuredProducts = [
-        {
-            id: 1,
-            name: 'Premium Wireless Headphones',
-            price: 199.99,
-            oldPrice: 249.99,
-            image: 'assets/product1.jpg',
-            rating: 4.5,
-            reviews: 128
-        },
-        {
-            id: 2,
-            name: 'Smart Watch Pro',
-            price: 249.99,
-            oldPrice: 299.99,
-            image: 'assets/product2.jpg',
-            rating: 4.2,
-            reviews: 86
-        },
-        {
-            id: 3,
-            name: 'Wireless Charger',
-            price: 39.99,
-            image: 'assets/product3.jpg',
-            rating: 4.0,
-            reviews: 45
-        },
-        {
-            id: 4,
-            name: 'Bluetooth Speaker',
-            price: 89.99,
-            oldPrice: 99.99,
-            image: 'assets/product4.jpg',
-            rating: 4.3,
-            reviews: 72
-        }
-    ];
-    
+    var featuredProducts = await fetch('/products/api/all');
+    featuredProducts = await featuredProducts.json();
+    featuredProducts = featuredProducts.slice(0, 4);
+
     var container = document.getElementById('featured-products-container');
     container.innerHTML = '';
     
@@ -93,7 +59,7 @@ function loadFeaturedProducts() {
             <div class="col-md-3 mb-4">
                 <div class="card h-100">
                     <div class="product-card-img">
-                        <img src="${product.image}" alt="${product.name}" class="img-fluid">
+                        <img src="../assets/${product.image}" alt="${product.name}" class="img-fluid">
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">${product.name}</h5>
@@ -102,8 +68,8 @@ function loadFeaturedProducts() {
                             <span class="ms-2">${product.rating} (${product.reviews})</span>
                         </div>
                         <div class="price mb-3">
-                            <span class="h5 text-primary">$${product.price.toFixed(2)}</span>
-                            ${product.oldPrice ? `<span class="text-decoration-line-through text-muted ms-2">$${product.oldPrice.toFixed(2)}</span>` : ''}
+                            <span class="h5 text-primary">$${product.price}</span>
+                            ${product.discount_rate > 0 ? `<span class="text-decoration-line-through text-muted ms-2">$${(product.price * (1 + parseFloat(product.discount_rate))).toFixed(2)}</span>` : ''}
                         </div>
                     </div>
                     <div class="card-footer bg-white">
@@ -125,87 +91,10 @@ function loadFeaturedProducts() {
 }
 
 // Load all products
-function loadAllProducts() {
+async function loadAllProducts() {
     // In a real app, you would fetch these from your backend API with pagination
-    var allProducts = [
-        {
-            id: 1,
-            name: 'Premium Wireless Headphones',
-            price: 199.99,
-            oldPrice: 249.99,
-            image: 'assets/product1.jpg',
-            rating: 4.5,
-            reviews: 128,
-            category: 'Electronics'
-        },
-        {
-            id: 2,
-            name: 'Smart Watch Pro',
-            price: 249.99,
-            oldPrice: 299.99,
-            image: 'assets/product2.jpg',
-            rating: 4.2,
-            reviews: 86,
-            category: 'Electronics'
-        },
-        {
-            id: 3,
-            name: 'Wireless Charger',
-            price: 39.99,
-            image: 'assets/product3.jpg',
-            rating: 4.0,
-            reviews: 45,
-            category: 'Electronics'
-        },
-        {
-            id: 4,
-            name: 'Bluetooth Speaker',
-            price: 89.99,
-            oldPrice: 99.99,
-            image: 'assets/product4.jpg',
-            rating: 4.3,
-            reviews: 72,
-            category: 'Electronics'
-        },
-        {
-            id: 5,
-            name: 'Men\'s Running Shoes',
-            price: 79.99,
-            image: 'assets/product5.jpg',
-            rating: 4.1,
-            reviews: 56,
-            category: 'Clothing'
-        },
-        {
-            id: 6,
-            name: 'Women\'s Yoga Pants',
-            price: 49.99,
-            oldPrice: 59.99,
-            image: 'assets/product6.jpg',
-            rating: 4.4,
-            reviews: 92,
-            category: 'Clothing'
-        },
-        {
-            id: 7,
-            name: 'Coffee Maker',
-            price: 129.99,
-            image: 'assets/product7.jpg',
-            rating: 4.6,
-            reviews: 134,
-            category: 'Home'
-        },
-        {
-            id: 8,
-            name: 'Air Fryer',
-            price: 99.99,
-            oldPrice: 119.99,
-            image: 'assets/product8.jpg',
-            rating: 4.3,
-            reviews: 78,
-            category: 'Home'
-        }
-    ];
+    var allProducts = await fetch('/products/api/all');
+    allProducts = await allProducts.json();
     
     var container = document.getElementById('product-grid');
     container.innerHTML = '';
@@ -215,7 +104,7 @@ function loadAllProducts() {
             <div class="col-md-4 col-lg-3 mb-4" data-category="${product.category.toLowerCase()}" data-price="${product.price}" data-rating="${product.rating}">
                 <div class="card h-100">
                     <div class="product-card-img">
-                        <img src="${product.image}" alt="${product.name}" class="img-fluid">
+                        <img src="../assets/${product.image}" alt="${product.name}" class="img-fluid">
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">${product.name}</h5>
@@ -224,8 +113,8 @@ function loadAllProducts() {
                             <span class="ms-2">${product.rating}</span>
                         </div>
                         <div class="price mb-3">
-                            <span class="h5 text-primary">$${product.price.toFixed(2)}</span>
-                            ${product.oldPrice ? `<span class="text-decoration-line-through text-muted ms-2">$${product.oldPrice.toFixed(2)}</span>` : ''}
+                            <span class="h5 text-primary">$${product.price}</span>
+                            ${product.discount_rate > 0 ? `<span class="text-decoration-line-through text-muted ms-2">$${(product.price * (1 + parseFloat(product.discount_rate))).toFixed(2)}</span>` : ''}
                         </div>
                     </div>
                     <div class="card-footer bg-white">

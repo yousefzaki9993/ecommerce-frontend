@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ShopEase - Checkout</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="/css/style.css" />
 </head>
+
 <body>
     <!-- Navigation (same as index.html) -->
-    
+    <%- include('./partial/nav.ejs')%>
+
     <!-- Checkout Section -->
     <section class="checkout py-5">
         <div class="container">
@@ -23,48 +26,51 @@
                         <div class="card-body">
                             <ul class="nav nav-pills mb-4" id="checkoutTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="shipping-tab" data-bs-toggle="pill" data-bs-target="#shipping" type="button">
+                                    <button class="nav-link active" id="shipping-tab" data-bs-toggle="pill"
+                                        data-bs-target="#shipping" type="button">
                                         <span class="step-number">1</span> Shipping
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="payment-tab" data-bs-toggle="pill" data-bs-target="#payment" type="button">
+                                    <button class="nav-link" id="payment-tab" data-bs-toggle="pill"
+                                        data-bs-target="#payment" type="button">
                                         <span class="step-number">2</span> Payment
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="review-tab" data-bs-toggle="pill" data-bs-target="#review" type="button">
+                                    <button class="nav-link" id="review-tab" data-bs-toggle="pill"
+                                        data-bs-target="#review" type="button">
                                         <span class="step-number">3</span> Review
                                     </button>
                                 </li>
                             </ul>
-                            
+
                             <div class="tab-content" id="checkoutTabsContent">
                                 <!-- Shipping Tab -->
                                 <div class="tab-pane fade show active" id="shipping" role="tabpanel">
                                     <h5 class="mb-4">Shipping Information</h5>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-6 mb-3">
                                             <label for="firstName" class="form-label">First Name</label>
-                                            <input type="text" class="form-control" id="firstName" required>
+                                            <input type="text" class="form-control" id="firstName" required />
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="lastName" class="form-label">Last Name</label>
-                                            <input type="text" class="form-control" id="lastName" required>
+                                            <input type="text" class="form-control" id="lastName" required />
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="address" class="form-label">Address</label>
-                                        <input type="text" class="form-control" id="address" required>
+                                        <input type="text" class="form-control" id="address" required />
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="address2" class="form-label">Address 2 (Optional)</label>
-                                        <input type="text" class="form-control" id="address2">
+                                        <input type="text" class="form-control" id="address2" />
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-md-5 mb-3">
                                             <label for="country" class="form-label">Country</label>
@@ -84,93 +90,102 @@
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label for="zip" class="form-label">ZIP Code</label>
-                                            <input type="text" class="form-control" id="zip" required>
+                                            <input type="text" class="form-control" id="zip" required />
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label for="phone" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" required>
+                                        <input type="tel" class="form-control" id="phone" required />
                                     </div>
-                                    
+
                                     <div class="mb-3 form-check">
-                                        <input type="checkbox" class="form-check-input" id="saveShipping">
-                                        <label class="form-check-label" for="saveShipping">Save this information for next time</label>
+                                        <input type="checkbox" class="form-check-input" id="saveShipping" />
+                                        <label class="form-check-label" for="saveShipping">Save this information for
+                                            next time</label>
                                     </div>
-                                    
+
                                     <div class="d-flex justify-content-between mt-4">
                                         <button class="btn btn-outline-secondary" id="backToCartBtn">
                                             <i class="fas fa-arrow-left me-2"></i>Back to Cart
                                         </button>
                                         <button class="btn btn-primary" id="continueToPaymentBtn">
-                                            Continue to Payment <i class="fas fa-arrow-right ms-2"></i>
+                                            Continue to Payment
+                                            <i class="fas fa-arrow-right ms-2"></i>
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Payment Tab -->
                                 <div class="tab-pane fade" id="payment" role="tabpanel">
                                     <h5 class="mb-4">Payment Method</h5>
-                                    
+
                                     <div class="mb-4">
                                         <div class="form-check mb-3">
-                                            <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked>
+                                            <input class="form-check-input" type="radio" name="paymentMethod"
+                                                id="creditCard" checked />
                                             <label class="form-check-label" for="creditCard">
                                                 Credit/Debit Card
                                             </label>
                                         </div>
-                                        
+
                                         <div class="card-payment-form" id="cardPaymentForm">
                                             <div class="mb-3">
                                                 <label for="cardNumber" class="form-label">Card Number</label>
-                                                <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456">
+                                                <input type="text" class="form-control" id="cardNumber"
+                                                    placeholder="1234 5678 9012 3456" />
                                             </div>
-                                            
+
                                             <div class="row mb-3">
                                                 <div class="col-md-6 mb-3">
                                                     <label for="cardName" class="form-label">Name on Card</label>
-                                                    <input type="text" class="form-control" id="cardName">
+                                                    <input type="text" class="form-control" id="cardName" />
                                                 </div>
                                                 <div class="col-md-3 mb-3">
                                                     <label for="cardExpiry" class="form-label">Expiry Date</label>
-                                                    <input type="text" class="form-control" id="cardExpiry" placeholder="MM/YY">
+                                                    <input type="text" class="form-control" id="cardExpiry"
+                                                        placeholder="MM/YY" />
                                                 </div>
                                                 <div class="col-md-3 mb-3">
                                                     <label for="cardCvv" class="form-label">CVV</label>
-                                                    <input type="text" class="form-control" id="cardCvv" placeholder="123">
+                                                    <input type="text" class="form-control" id="cardCvv"
+                                                        placeholder="123" />
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="form-check mb-3">
-                                            <input class="form-check-input" type="radio" name="paymentMethod" id="paypal">
+                                            <input class="form-check-input" type="radio" name="paymentMethod"
+                                                id="paypal" />
                                             <label class="form-check-label" for="paypal">
                                                 PayPal
                                             </label>
                                         </div>
-                                        
+
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer">
+                                            <input class="form-check-input" type="radio" name="paymentMethod"
+                                                id="bankTransfer" />
                                             <label class="form-check-label" for="bankTransfer">
                                                 Bank Transfer
                                             </label>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="d-flex justify-content-between mt-4">
                                         <button class="btn btn-outline-secondary" id="backToShippingBtn">
                                             <i class="fas fa-arrow-left me-2"></i>Back to Shipping
                                         </button>
                                         <button class="btn btn-primary" id="continueToReviewBtn">
-                                            Continue to Review <i class="fas fa-arrow-right ms-2"></i>
+                                            Continue to Review
+                                            <i class="fas fa-arrow-right ms-2"></i>
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Review Tab -->
                                 <div class="tab-pane fade" id="review" role="tabpanel">
                                     <h5 class="mb-4">Review Your Order</h5>
-                                    
+
                                     <div class="card mb-4">
                                         <div class="card-header bg-light">
                                             <h6 class="mb-0">Shipping Information</h6>
@@ -183,16 +198,18 @@
                                             <p id="reviewShippingPhone">(555) 123-4567</p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="card mb-4">
                                         <div class="card-header bg-light">
                                             <h6 class="mb-0">Payment Method</h6>
                                         </div>
                                         <div class="card-body">
-                                            <p id="reviewPaymentMethod">Credit Card ending in 3456</p>
+                                            <p id="reviewPaymentMethod">
+                                                Credit Card ending in 3456
+                                            </p>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="card mb-4">
                                         <div class="card-header bg-light">
                                             <h6 class="mb-0">Order Summary</h6>
@@ -230,7 +247,7 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            
+
                                             <div class="order-totals">
                                                 <div class="d-flex justify-content-between mb-2">
                                                     <span>Subtotal</span>
@@ -248,7 +265,7 @@
                                                     <span>Discount</span>
                                                     <span class="text-danger">-$20.00</span>
                                                 </div>
-                                                <hr>
+                                                <hr />
                                                 <div class="d-flex justify-content-between mb-3">
                                                     <h5>Total</h5>
                                                     <h5>$552.36</h5>
@@ -256,14 +273,15 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="form-check mb-4">
-                                        <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+                                        <input class="form-check-input" type="checkbox" id="agreeTerms" required />
                                         <label class="form-check-label" for="agreeTerms">
-                                            I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a>
+                                            I agree to the <a href="#">Terms and Conditions</a> and
+                                            <a href="#">Privacy Policy</a>
                                         </label>
                                     </div>
-                                    
+
                                     <div class="d-flex justify-content-between">
                                         <button class="btn btn-outline-secondary" id="backToPaymentBtn">
                                             <i class="fas fa-arrow-left me-2"></i>Back to Payment
@@ -277,7 +295,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-header bg-white">
@@ -287,46 +305,40 @@
                             <div class="order-summary-items">
                                 <div class="d-flex mb-3">
                                     <div class="order-item-img me-3">
-                                        <img src="assets/product1-thumb1.jpg" alt="Product" class="img-thumbnail">
+                                        <img src="assets/product1-thumb1.jpg" alt="Product" class="img-thumbnail" />
                                     </div>
                                     <div class="order-item-details">
                                         <h6 class="mb-1">Premium Wireless Headphones</h6>
                                         <p class="text-muted mb-0">Qty: 1</p>
                                     </div>
-                                    <div class="order-item-price ms-auto">
-                                        $199.99
-                                    </div>
+                                    <div class="order-item-price ms-auto">$199.99</div>
                                 </div>
-                                
+
                                 <div class="d-flex mb-3">
                                     <div class="order-item-img me-3">
-                                        <img src="assets/product2-thumb1.jpg" alt="Product" class="img-thumbnail">
+                                        <img src="assets/product2-thumb1.jpg" alt="Product" class="img-thumbnail" />
                                     </div>
                                     <div class="order-item-details">
                                         <h6 class="mb-1">Smart Watch Pro</h6>
                                         <p class="text-muted mb-0">Qty: 1</p>
                                     </div>
-                                    <div class="order-item-price ms-auto">
-                                        $249.99
-                                    </div>
+                                    <div class="order-item-price ms-auto">$249.99</div>
                                 </div>
-                                
+
                                 <div class="d-flex">
                                     <div class="order-item-img me-3">
-                                        <img src="assets/product3-thumb1.jpg" alt="Product" class="img-thumbnail">
+                                        <img src="assets/product3-thumb1.jpg" alt="Product" class="img-thumbnail" />
                                     </div>
                                     <div class="order-item-details">
                                         <h6 class="mb-1">Wireless Charger</h6>
                                         <p class="text-muted mb-0">Qty: 2</p>
                                     </div>
-                                    <div class="order-item-price ms-auto">
-                                        $79.98
-                                    </div>
+                                    <div class="order-item-price ms-auto">$79.98</div>
                                 </div>
                             </div>
-                            
-                            <hr>
-                            
+
+                            <hr />
+
                             <div class="order-summary-totals">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal</span>
@@ -344,7 +356,7 @@
                                     <span>Discount</span>
                                     <span class="text-danger">-$20.00</span>
                                 </div>
-                                <hr>
+                                <hr />
                                 <div class="d-flex justify-content-between mb-3">
                                     <h5>Total</h5>
                                     <h5>$552.36</h5>
@@ -352,11 +364,14 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="card mt-4">
                         <div class="card-body">
                             <h6 class="mb-3">Need Help?</h6>
-                            <p>Contact our customer support team for assistance with your order.</p>
+                            <p>
+                                Contact our customer support team for assistance with your
+                                order.
+                            </p>
                             <p><i class="fas fa-phone me-2"></i> (800) 123-4567</p>
                             <p><i class="fas fa-envelope me-2"></i> support@shopease.com</p>
                         </div>
@@ -365,11 +380,13 @@
             </div>
         </div>
     </section>
-    
-    <!-- Footer (same as index.html) -->
 
+    <!-- Footer (same as index.html) -->
+    <%- include('./partial/footer.ejs')%>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/cart.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/cart.js"></script>
 </body>
+
 </html>

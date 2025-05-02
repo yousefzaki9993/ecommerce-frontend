@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,42 +15,47 @@
             background-color: #212529;
             color: white;
         }
+
         .admin-content {
             margin-left: 250px;
             padding: 20px;
         }
+
         .order-status {
             width: 120px;
         }
+
         @media (max-width: 991px) {
             .admin-sidebar {
                 width: 100%;
                 height: auto;
                 position: relative;
             }
+
             .admin-content {
                 margin-left: 0;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="admin-sidebar p-3">
         <h4>ShopEase Admin</h4>
         <hr>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="products.html">
+                <a class="nav-link text-white-50" href="/products">
                     <i class="bi bi-box-seam"></i> Products
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active text-white" href="orders.html">
+                <a class="nav-link active text-white" href="/orders">
                     <i class="bi bi-receipt"></i> Orders
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="inventory.html">
+                <a class="nav-link text-white-50" href="/inventory">
                     <i class="bi bi-clipboard-data"></i> Inventory
                 </a>
             </li>
@@ -58,7 +64,7 @@
 
     <div class="admin-content">
         <h2 class="mb-4">Order Management</h2>
-        
+
         <div class="card mb-4">
             <div class="card-body">
                 <div class="row g-3">
@@ -131,7 +137,7 @@
                                 <p id="shippingAddress"></p>
                             </div>
                         </div>
-                        
+
                         <h6>Order Items</h6>
                         <table class="table table-bordered" id="orderItemsTable">
                             <thead>
@@ -144,7 +150,7 @@
                             </thead>
                             <tbody></tbody>
                         </table>
-                        
+
                         <div class="row justify-content-end">
                             <div class="col-md-4">
                                 <table class="table">
@@ -167,7 +173,7 @@
                                 </table>
                             </div>
                         </div>
-                        
+
                         <div class="mt-4">
                             <label class="form-label">Update Status:</label>
                             <div class="d-flex gap-2">
@@ -195,10 +201,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const orderModal = new bootstrap.Modal('#orderModal');
             const ordersTable = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
-            
+
             // Sample order data
             let orders = [
                 {
@@ -235,25 +241,25 @@
                     tax: 27.20
                 }
             ];
-            
+
             // Load orders into table
             function loadOrders(filterStatus = '', dateFrom = '', dateTo = '') {
                 ordersTable.innerHTML = '';
-                
+
                 let filteredOrders = orders;
-                
+
                 if (filterStatus) {
                     filteredOrders = filteredOrders.filter(order => order.status === filterStatus);
                 }
-                
+
                 if (dateFrom) {
                     filteredOrders = filteredOrders.filter(order => order.date >= dateFrom);
                 }
-                
+
                 if (dateTo) {
                     filteredOrders = filteredOrders.filter(order => order.date <= dateTo);
                 }
-                
+
                 filteredOrders.forEach(order => {
                     const row = ordersTable.insertRow();
                     row.innerHTML = `
@@ -276,22 +282,22 @@
                         </td>
                     `;
                 });
-                
+
                 // Add event listeners
                 document.querySelectorAll('.view-btn').forEach(btn => {
                     btn.addEventListener('click', viewOrderDetails);
                 });
-                
+
                 document.querySelectorAll('.ship-btn').forEach(btn => {
                     btn.addEventListener('click', shipOrder);
                 });
             }
-            
+
             // View order details
             function viewOrderDetails(e) {
                 const orderId = e.currentTarget.getAttribute('data-id');
                 const order = orders.find(o => o.id === orderId);
-                
+
                 if (order) {
                     document.getElementById('orderIdTitle').textContent = order.id;
                     document.getElementById('customerInfo').innerHTML = `
@@ -300,11 +306,11 @@
                         ${order.phone}
                     `;
                     document.getElementById('shippingAddress').textContent = order.address;
-                    
+
                     // Load order items
                     const itemsTable = document.getElementById('orderItemsTable').getElementsByTagName('tbody')[0];
                     itemsTable.innerHTML = '';
-                    
+
                     order.items.forEach(item => {
                         const row = itemsTable.insertRow();
                         row.innerHTML = `
@@ -314,28 +320,28 @@
                             <td>$${(item.price * item.quantity).toFixed(2)}</td>
                         `;
                     });
-                    
+
                     // Set order totals
                     document.getElementById('orderSubtotal').textContent = `$${order.subtotal.toFixed(2)}`;
                     document.getElementById('orderShipping').textContent = `$${order.shipping.toFixed(2)}`;
                     document.getElementById('orderTax').textContent = `$${order.tax.toFixed(2)}`;
                     document.getElementById('orderTotal').textContent = `$${order.amount.toFixed(2)}`;
-                    
+
                     // Set current status
                     document.getElementById('orderStatus').value = order.status;
-                    
+
                     // Store current order ID for status update
                     document.getElementById('updateStatusBtn').setAttribute('data-id', order.id);
-                    
+
                     orderModal.show();
                 }
             }
-            
+
             // Ship order (quick action)
             function shipOrder(e) {
                 const orderId = e.currentTarget.getAttribute('data-id');
                 const orderIndex = orders.findIndex(o => o.id === orderId);
-                
+
                 if (orderIndex !== -1 && orders[orderIndex].status !== 'shipped') {
                     if (confirm(`Mark order ${orderId} as shipped?`)) {
                         orders[orderIndex].status = 'shipped';
@@ -347,13 +353,13 @@
                     }
                 }
             }
-            
+
             // Update order status
-            document.getElementById('updateStatusBtn').addEventListener('click', function() {
+            document.getElementById('updateStatusBtn').addEventListener('click', function () {
                 const orderId = this.getAttribute('data-id');
                 const newStatus = document.getElementById('orderStatus').value;
                 const orderIndex = orders.findIndex(o => o.id === orderId);
-                
+
                 if (orderIndex !== -1) {
                     orders[orderIndex].status = newStatus;
                     orderModal.hide();
@@ -364,24 +370,24 @@
                     );
                 }
             });
-            
+
             // Filter orders
-            document.getElementById('filterBtn').addEventListener('click', function() {
+            document.getElementById('filterBtn').addEventListener('click', function () {
                 loadOrders(
                     document.getElementById('statusFilter').value,
                     document.getElementById('dateFrom').value,
                     document.getElementById('dateTo').value
                 );
             });
-            
+
             // Print order
-            document.getElementById('printOrderBtn').addEventListener('click', function() {
+            document.getElementById('printOrderBtn').addEventListener('click', function () {
                 window.print();
             });
-            
+
             // Helper function for status badge class
             function getStatusBadgeClass(status) {
-                switch(status) {
+                switch (status) {
                     case 'pending': return 'bg-warning';
                     case 'processing': return 'bg-info';
                     case 'shipped': return 'bg-primary';
@@ -390,10 +396,11 @@
                     default: return 'bg-secondary';
                 }
             }
-            
+
             // Initial load
             loadOrders();
         });
     </script>
 </body>
+
 </html>
