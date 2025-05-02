@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,48 +15,55 @@
             background-color: #212529;
             color: white;
         }
+
         .admin-content {
             margin-left: 250px;
             padding: 20px;
         }
+
         .inventory-card {
             transition: transform 0.2s;
         }
+
         .inventory-card:hover {
             transform: translateY(-5px);
         }
+
         .low-stock {
             background-color: #fff3cd !important;
         }
+
         @media (max-width: 991px) {
             .admin-sidebar {
                 width: 100%;
                 height: auto;
                 position: relative;
             }
+
             .admin-content {
                 margin-left: 0;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="admin-sidebar p-3">
         <h4>ShopEase Admin</h4>
         <hr>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="products.html">
+                <a class="nav-link text-white-50" href="/products">
                     <i class="bi bi-box-seam"></i> Products
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="orders.html">
+                <a class="nav-link text-white-50" href="/orders">
                     <i class="bi bi-receipt"></i> Orders
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active text-white" href="inventory.html">
+                <a class="nav-link active text-white" href="/inventory">
                     <i class="bi bi-clipboard-data"></i> Inventory
                 </a>
             </li>
@@ -108,7 +116,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="table-responsive">
                     <table class="table" id="inventoryTable">
                         <thead>
@@ -169,11 +177,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const inventoryModal = new bootstrap.Modal('#inventoryModal');
             const inventoryTable = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
             const inventoryProductSelect = document.getElementById('inventoryProduct');
-            
+
             // Sample inventory data
             let inventory = [
                 {
@@ -198,7 +206,7 @@
                     lastUpdated: '2023-06-08'
                 }
             ];
-            
+
             // Sample product data for dropdown
             const products = [
                 { id: 1, name: 'Premium Wireless Headphones' },
@@ -206,24 +214,24 @@
                 { id: 3, name: 'Wireless Charger' },
                 { id: 4, name: 'Bluetooth Speaker' }
             ];
-            
+
             // Load inventory
             function loadInventory(searchTerm = '') {
                 inventoryTable.innerHTML = '';
-                
+
                 let filteredInventory = inventory;
-                
+
                 if (searchTerm) {
-                    filteredInventory = filteredInventory.filter(item => 
+                    filteredInventory = filteredInventory.filter(item =>
                         item.productName.toLowerCase().includes(searchTerm.toLowerCase())
                     );
                 }
-                
+
                 filteredInventory.forEach(item => {
                     const isLowStock = item.currentStock <= item.threshold;
                     const row = inventoryTable.insertRow();
                     if (isLowStock) row.classList.add('low-stock');
-                    
+
                     row.innerHTML = `
                         <td>${item.productId}</td>
                         <td>${item.productName}</td>
@@ -242,27 +250,27 @@
                         </td>
                     `;
                 });
-                
+
                 // Add event listeners to restock buttons
                 document.querySelectorAll('.restock-btn').forEach(btn => {
                     btn.addEventListener('click', restockItem);
                 });
-                
+
                 // Update summary cards
                 updateSummaryCards();
             }
-            
+
             // Update summary cards
             function updateSummaryCards() {
                 document.getElementById('totalProducts').textContent = inventory.length;
-                
+
                 const totalInStock = inventory.reduce((sum, item) => sum + item.currentStock, 0);
                 document.getElementById('totalInStock').textContent = totalInStock;
-                
+
                 const totalLowStock = inventory.filter(item => item.currentStock <= item.threshold).length;
                 document.getElementById('totalLowStock').textContent = totalLowStock;
             }
-            
+
             // Load products into select dropdown
             function loadProductDropdown() {
                 inventoryProductSelect.innerHTML = '<option value="">Select Product</option>';
@@ -273,50 +281,50 @@
                     inventoryProductSelect.appendChild(option);
                 });
             }
-            
+
             // Add stock button
-            document.getElementById('addStockBtn').addEventListener('click', function() {
+            document.getElementById('addStockBtn').addEventListener('click', function () {
                 document.getElementById('inventoryModalTitle').textContent = 'Add Stock';
                 document.getElementById('inventoryForm').reset();
                 document.getElementById('inventoryProductId').value = '';
                 loadProductDropdown();
                 inventoryModal.show();
             });
-            
+
             // Restock item
             function restockItem(e) {
                 const productId = parseInt(e.currentTarget.getAttribute('data-id'));
                 const inventoryItem = inventory.find(item => item.productId === productId);
                 const product = products.find(p => p.id === productId);
-                
+
                 if (inventoryItem && product) {
                     document.getElementById('inventoryModalTitle').textContent = 'Restock Item';
                     document.getElementById('inventoryProductId').value = inventoryItem.productId;
                     document.getElementById('inventoryProduct').value = inventoryItem.productId;
                     document.getElementById('stockQuantity').value = '';
                     document.getElementById('stockThreshold').value = inventoryItem.threshold;
-                    
+
                     // Disable product selection for restocking
                     document.getElementById('inventoryProduct').disabled = true;
-                    
+
                     inventoryModal.show();
                 }
             }
-            
+
             // Save inventory changes
-            document.getElementById('saveInventoryBtn').addEventListener('click', function() {
+            document.getElementById('saveInventoryBtn').addEventListener('click', function () {
                 if (document.getElementById('inventoryForm').checkValidity()) {
-                    const productId = document.getElementById('inventoryProductId').value 
+                    const productId = document.getElementById('inventoryProductId').value
                         ? parseInt(document.getElementById('inventoryProductId').value)
                         : parseInt(document.getElementById('inventoryProduct').value);
-                    
+
                     const quantity = parseInt(document.getElementById('stockQuantity').value);
                     const threshold = parseInt(document.getElementById('stockThreshold').value);
                     const product = products.find(p => p.id === productId);
-                    
+
                     if (product) {
                         const existingItemIndex = inventory.findIndex(item => item.productId === productId);
-                        
+
                         if (existingItemIndex !== -1) {
                             // Update existing inventory item
                             inventory[existingItemIndex].currentStock += quantity;
@@ -332,7 +340,7 @@
                                 lastUpdated: new Date().toISOString().split('T')[0]
                             });
                         }
-                        
+
                         loadInventory();
                         inventoryModal.hide();
                         document.getElementById('inventoryProduct').disabled = false;
@@ -341,23 +349,24 @@
                     document.getElementById('inventoryForm').reportValidity();
                 }
             });
-            
+
             // Search inventory
-            document.getElementById('searchInventoryBtn').addEventListener('click', function() {
+            document.getElementById('searchInventoryBtn').addEventListener('click', function () {
                 const searchTerm = document.getElementById('inventorySearch').value;
                 loadInventory(searchTerm);
             });
-            
-            document.getElementById('inventorySearch').addEventListener('keypress', function(e) {
+
+            document.getElementById('inventorySearch').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     const searchTerm = document.getElementById('inventorySearch').value;
                     loadInventory(searchTerm);
                 }
             });
-            
+
             // Initial load
             loadInventory();
         });
     </script>
 </body>
+
 </html>

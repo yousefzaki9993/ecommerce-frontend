@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShopEase - Product Detail</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
+
 <body>
     <!-- Navigation (same as index.html) -->
-    
+    <%- include('./partial/nav.ejs')%>
+
     <!-- Product Detail Section -->
     <section class="product-detail py-5">
         <div class="container">
@@ -37,7 +40,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6">
                     <h1 id="productTitle">Premium Wireless Headphones</h1>
                     <div class="rating mb-2">
@@ -48,21 +51,23 @@
                         <i class="fas fa-star-half-alt text-warning"></i>
                         <span class="ms-2">4.5 (128 reviews)</span>
                     </div>
-                    
+
                     <div class="price mb-3">
                         <span class="h4 text-primary">$199.99</span>
                         <span class="text-decoration-line-through text-muted ms-2">$249.99</span>
                         <span class="badge bg-danger ms-2">20% OFF</span>
                     </div>
-                    
+
                     <div class="availability mb-3">
                         <span class="text-success"><i class="fas fa-check-circle"></i> In Stock</span>
                         <span class="ms-3">Only 5 left!</span>
                     </div>
-                    
+
                     <div class="description mb-4">
                         <h5>Description</h5>
-                        <p>Experience crystal-clear sound with our premium wireless headphones. Featuring noise cancellation, 30-hour battery life, and comfortable over-ear design for extended listening sessions.</p>
+                        <p>Experience crystal-clear sound with our premium wireless headphones. Featuring noise
+                            cancellation, 30-hour battery life, and comfortable over-ear design for extended listening
+                            sessions.</p>
                         <ul>
                             <li>Active Noise Cancellation</li>
                             <li>30-hour battery life</li>
@@ -71,7 +76,7 @@
                             <li>Foldable design</li>
                         </ul>
                     </div>
-                    
+
                     <div class="product-options mb-4">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -92,7 +97,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="action-buttons">
                         <button class="btn btn-primary btn-lg me-3" id="addToCartBtn">
                             <i class="fas fa-shopping-cart me-2"></i>Add to Cart
@@ -101,7 +106,7 @@
                             Buy Now
                         </button>
                     </div>
-                    
+
                     <div class="product-meta mt-4">
                         <div class="d-flex">
                             <div class="me-4">
@@ -120,26 +125,33 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Product Tabs -->
             <div class="row mt-5">
                 <div class="col-12">
                     <ul class="nav nav-tabs" id="productTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" type="button">Description</button>
+                            <button class="nav-link active" id="description-tab" data-bs-toggle="tab"
+                                data-bs-target="#description" type="button">Description</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs" type="button">Specifications</button>
+                            <button class="nav-link" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs"
+                                type="button">Specifications</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" type="button">Reviews</button>
+                            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews"
+                                type="button">Reviews</button>
                         </li>
                     </ul>
                     <div class="tab-content p-3 border border-top-0" id="productTabsContent">
                         <div class="tab-pane fade show active" id="description" role="tabpanel">
                             <h4>Detailed Description</h4>
-                            <p>Our premium wireless headphones are designed for audiophiles who demand the best sound quality. The advanced noise cancellation technology blocks out external noise, allowing you to immerse yourself in your music.</p>
-                            <p>The ergonomic design ensures comfort even during extended listening sessions, while the 30-hour battery life means you can enjoy your music all day and night. The built-in microphone with noise reduction makes these headphones perfect for calls as well.</p>
+                            <p>Our premium wireless headphones are designed for audiophiles who demand the best sound
+                                quality. The advanced noise cancellation technology blocks out external noise, allowing
+                                you to immerse yourself in your music.</p>
+                            <p>The ergonomic design ensures comfort even during extended listening sessions, while the
+                                30-hour battery life means you can enjoy your music all day and night. The built-in
+                                microphone with noise reduction makes these headphones perfect for calls as well.</p>
                         </div>
                         <div class="tab-pane fade" id="specs" role="tabpanel">
                             <table class="table">
@@ -193,7 +205,7 @@
                                     <button type="submit" class="btn btn-primary">Submit Review</button>
                                 </form>
                             </div>
-                            
+
                             <div class="reviews-list">
                                 <h5>Customer Reviews</h5>
                                 <div class="review-item mb-4">
@@ -209,9 +221,10 @@
                                         <i class="fas fa-star text-warning"></i>
                                     </div>
                                     <h6 class="review-title">Amazing Sound Quality</h6>
-                                    <p class="review-text">These headphones exceeded my expectations. The sound is crisp and clear, and the noise cancellation works perfectly on my commute.</p>
+                                    <p class="review-text">These headphones exceeded my expectations. The sound is crisp
+                                        and clear, and the noise cancellation works perfectly on my commute.</p>
                                 </div>
-                                
+
                                 <div class="review-item mb-4">
                                     <div class="d-flex justify-content-between">
                                         <div class="review-author">Sarah M.</div>
@@ -225,14 +238,15 @@
                                         <i class="far fa-star text-warning"></i>
                                     </div>
                                     <h6 class="review-title">Great but could be more comfortable</h6>
-                                    <p class="review-text">The sound is fantastic, but after several hours they start to feel a bit heavy. Battery life is as advertised though.</p>
+                                    <p class="review-text">The sound is fantastic, but after several hours they start to
+                                        feel a bit heavy. Battery life is as advertised though.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Related Products -->
             <div class="row mt-5">
                 <div class="col-12">
@@ -244,11 +258,13 @@
             </div>
         </div>
     </section>
-    
-    <!-- Footer (same as index.html) -->
 
+    <!-- Footer (same as index.html) -->
+    <%- include('./partial/footer.ejs')%>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/products.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="/js/products.js"></script>
 </body>
+
 </html>
