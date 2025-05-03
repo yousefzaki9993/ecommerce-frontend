@@ -40,6 +40,11 @@ class User {
     static async verifyPassword(password, hashedPassword) {
         return await bcrypt.compare(password, hashedPassword);
     }
+
+    static async getUserData(id) {
+        const [rows] = await pool.query('SELECT email, first_name, last_name, profile_picture, bio FROM users WHERE user_id = ?', [id]);
+        return rows[0];
+    }
 }
 
 module.exports = User;

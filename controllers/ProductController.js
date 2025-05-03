@@ -1,16 +1,16 @@
 const Product = require('../models/Product');
 
-// For API usage (e.g., /api/products)
-exports.apiGetProducts = async (req, res, next) => {
-    try {
-        const products = await Product.getAllProducts();
-        res.json(products);
-    } catch (err) {
-        console.log(err);
-    }
+// For API usage
+exports.apiGetProducts = async (req, res) => {
+    const products = await Product.getAllProducts();
+    res.json(products);
 };
 
 // For rendering view
-exports.apiGetProductsData = async () => {
-    return await Product.getAllProducts();
+exports.renderProducts = (req, res, next) => {
+    try {
+        res.render('products');
+    } catch (error) {
+        next(error);
+    }
 };

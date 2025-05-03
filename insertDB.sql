@@ -2,23 +2,23 @@
 USE ecommerce_db;
 
 /*
-For john.doe@example.com: Password123!
+For john.doe@example.com: Password123
 
-For jane.smith@example.com: SecurePass456!
+For jane.smith@example.com: Password
 
-For mike.johnson@example.com: TestPass789!
+For mike.johnson@example.com: Pass
 
-For sarah.williams@example.com: DevPassword321!
+For sarah.williams@example.com: TestPass789
 
-For david.brown@example.com: TempPass654!
+For david.brown@example.com: TestPass789
 */
 -- Insert users
 INSERT INTO users (email, password, first_name, last_name, profile_picture, bio) VALUES 
-('john.doe@example.com', '$2a$10$xJwL5v5Jz5U5Z5U5Z5U5Ze', 'John', 'Doe', 'profile1.jpg', 'Tech enthusiast and frequent shopper'),
-('jane.smith@example.com', '$2a$10$xJwL5v5Jz5U5Z5U5Z5U5Ze', 'Jane', 'Smith', 'profile2.jpg', 'Love reading and cooking'),
-('mike.johnson@example.com', '$2a$10$xJwL5v5Jz5U5Z5U5Z5U5Ze', 'Mike', 'Johnson', 'profile3.jpg', 'Fitness trainer and outdoor lover'),
-('sarah.williams@example.com', '$2a$10$xJwL5v5Jz5U5Z5U5Z5U5Ze', 'Sarah', 'Williams', 'profile4.jpg', 'Bookworm and coffee addict'),
-('david.brown@example.com', '$2a$10$xJwL5v5Jz5U5Z5U5Z5U5Ze', 'David', 'Brown', 'profile5.jpg', 'Home chef and gadget collector');
+('john.doe@example.com', '$2b$10$mXODlO1lnZb8c1FoJEgesuOh3qkRZe6Q6WMGXwWUUT6YIgmJHIZ56', 'John', 'Doe', 'male.png', 'Tech enthusiast and frequent shopper'),
+('jane.smith@example.com', '$2b$10$GxCSSzvwxLA2MkrYUcCtKO3nm6EbXSETwM/2EUSXw6p69Z8RinEkm', 'Jane', 'Smith', 'female.png', 'Love reading and cooking'),
+('mike.johnson@example.com', '$2b$10$lB0b0bvnfHm14OwMdNqHWOsdxBWhrQ026m1a6IUzjX16xsD2L/rBW', 'Mike', 'Johnson', 'male.png', 'Fitness trainer and outdoor lover'),
+('sarah.williams@example.com', '$2b$10$CwbOIo9ciOEzl5wrmTC0qeEAvCTwPh24imF4CMiv5Y2ELnhpohr3a', 'Sarah', 'Williams', 'female.png', 'Bookworm and coffee addict'),
+('david.brown@example.com', '$2b$10$CwbOIo9ciOEzl5wrmTC0qeEAvCTwPh24imF4CMiv5Y2ELnhpohr3a', 'David', 'Brown', 'male.png', 'Home chef and gadget collector');
 
 -- Insert products
 INSERT INTO products (name, description, price, discount_rate, stock_quantity, image, rating, reviews, category) VALUES 
@@ -31,7 +31,7 @@ INSERT INTO products (name, description, price, discount_rate, stock_quantity, i
 ('Smart Watch', 'Fitness tracker with heart rate monitor', 129.99, 0.25, 40, 'product07.png', 3.4, 1, 'Electronics'),
 ('Jeans', 'Classic fit jeans with stretch technology', 59.99, 0.1, 90, 'product08.png', 2.9, 0, 'Clothing'),
 ('Blender', 'High-speed blender for smoothies and soups', 89.99, 0, 30, 'product09.png', 1.4, 0, 'Home & Kitchen'),
-('Cookbook', 'Collection of 100 easy recipes for beginners', 19.99, 0, 80, 'product01.png', 0.4, 0, 'Books');
+('Cookbook', 'Collection of 100 easy recipes for beginners', 19.99, 0, 80, 'product01.png', 1.2, 0, 'Books');
 
 -- Insert carts
 INSERT INTO carts (user_id) VALUES 

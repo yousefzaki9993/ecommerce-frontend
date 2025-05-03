@@ -151,7 +151,7 @@ function addToCart() {
     alert(product.name + ' has been added to your cart!');
     
     // If on product page, you might want to redirect to cart
-    // window.location.href = 'cart.html';
+    // window.location.href = '/products/cart';
 }
 
 // Remove cart item
@@ -175,12 +175,12 @@ function clearCart() {
 // Proceed to checkout
 function proceedToCheckout() {
     // In a real app, you would validate cart and redirect
-    window.location.href = 'checkout.html';
+    window.location.href = '/checkout';
 }
 
 // Continue shopping
 function continueShopping() {
-    window.location.href = 'products.html';
+    window.location.href = '/products';
 }
 
 // Place order
@@ -195,7 +195,7 @@ function placeOrder(e) {
     
     // Simulate successful order
     alert('Thank you for your order! Your order has been placed successfully.');
-    window.location.href = 'dashboard.html';
+    window.location.href = 'dashboard';
     
     // In a real app, you would clear the cart after successful order
     // clearCart();

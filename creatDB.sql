@@ -10,6 +10,7 @@ CREATE TABLE users (
     last_name VARCHAR(50),
     profile_picture VARCHAR(255),
 	bio TEXT,
+    phone varchar (20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -23,7 +24,7 @@ CREATE TABLE products (
     stock_quantity INT NOT NULL,
     image VARCHAR(255),
     category varchar(100),
-    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    rating DECIMAL(2, 1) NOT NULL CHECK (rating BETWEEN 1 AND 5),
     reviews int default 0
 );
 

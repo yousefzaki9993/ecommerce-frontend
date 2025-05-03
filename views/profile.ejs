@@ -20,6 +20,7 @@
             <div class="row">
                 <div class="col-md-3">
                     <!-- Sidebar (same as dashboard.html) -->
+                    <%- include('./partial/sidebar.ejs')%>
                 </div>
 
                 <div class="col-md-9">
@@ -32,7 +33,7 @@
                                 <div class="row mb-4">
                                     <div class="col-md-3">
                                         <div class="profile-picture">
-                                            <img src="assets/profile-pic.jpg" alt="Profile Picture"
+                                            <img src="/assets/<%= data.profile_picture %>" alt="Profile Picture"
                                                 class="img-thumbnail mb-2" id="profileImage">
                                             <div class="d-grid">
                                                 <button type="button" class="btn btn-sm btn-outline-primary"
@@ -49,25 +50,25 @@
                                             <div class="col-md-6 mb-3">
                                                 <label for="profileFirstName" class="form-label">First Name</label>
                                                 <input type="text" class="form-control" id="profileFirstName"
-                                                    value="John">
+                                                    value="<%= data.first_name %>">
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label for="profileLastName" class="form-label">Last Name</label>
                                                 <input type="text" class="form-control" id="profileLastName"
-                                                    value="Doe">
+                                                    value="<%= data.last_name %>">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="profileEmail" class="form-label">Email Address</label>
                                             <input type="email" class="form-control" id="profileEmail"
-                                                value="john.doe@example.com" readonly>
+                                                value="<%= data.email %>" readonly>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="profilePhone" class="form-label">Phone Number</label>
                                             <input type="tel" class="form-control" id="profilePhone"
-                                                value="(555) 123-4567">
+                                                value="<%= data.phone %>">
                                         </div>
                                     </div>
                                 </div>
@@ -75,7 +76,7 @@
                                 <div class="mb-3">
                                     <label for="profileBio" class="form-label">Bio</label>
                                     <textarea class="form-control" id="profileBio"
-                                        rows="3">E-commerce enthusiast and tech lover.</textarea>
+                                        rows="3"><%= data.bio %></textarea>
                                 </div>
 
                                 <div class="text-end">
@@ -151,7 +152,6 @@
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/main.js"></script>
-    <script src="/js/auth.js"></script>
 </body>
 
 </html>
