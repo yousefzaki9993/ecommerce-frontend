@@ -11,9 +11,12 @@
 </head>
 
 <body>
-    <!-- Navigation (same as index.html) -->
-    <%- include('./partial/nav.ejs')%>
-
+    <!-- Navigation (same as index.html) if not logged in-->
+    <% if (session.userData ) { %>
+        <%- include('./partial/nav_logged.ejs')%>
+    <% } else { %>
+        <%- include('./partial/nav.ejs')%>
+    <% } %>
     <!-- Product Listing Section -->
     <section class="product-listing py-5">
         <div class="container">

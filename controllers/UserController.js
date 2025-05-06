@@ -19,7 +19,7 @@ exports.renderProfile = async (req, res, next) => {
     try {
         if (req.session.userData) {
             const data = await User.getUserData(req.session.userData.user.user_id);
-            return res.render('profile', {data: data} );
+            return res.render('profile', { data: data });
         }
         res.render('login');
     } catch (error) {
@@ -40,28 +40,21 @@ exports.handleLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body;
         const user = await User.findByEmail(email);
-        let message;
 
         if (!user) {
-            message = {
-                success: false,
-                message: 'Invalid email'
-            }
+            req.flash('error_msg', 'Invalid email');
+            res.redirect('/user/login');
+            return;
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            message = {
-                success: false,
-                message: 'Invalid Password'
-            };
+            req.flash('error_msg', 'Invalid Password');
+            res.redirect('/user/login');
+            return;
         }
 
-        const token = jwt.sign(
-            { id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRE || '1h' }
-        );
+        const token = User.generateToken(user.id);
 
         const userResponse = {
             user_id: user.user_id,
@@ -70,36 +63,66 @@ exports.handleLogin = async (req, res, next) => {
             email: user.email,
         };
 
-        message = {
-            success: true,
-            message: 'Login successful'
-        };
-
-        let userData = {
+        let = userData = {
             token,
             user: userResponse
         };
-        req.session.userData = userData;
-        req.session.message = message;
 
-        res.render('dashboard', { message: req.session.message, userData: req.session.userData.user });
+        req.session.userData = userData;
+
+        req.flash('success_msg', 'Login successful');
+        res.redirect('/user/dashboard');
 
     } catch (err) {
-        console.error(err);
-        message = {
-            success: false,
-            message: 'Server error during authentication'
+        next(err);
+    }
+};
+
+exports.handleRegister = async (req, res, next) => {
+    try {
+        const { email, password, first_name, last_name, confirm_password } = req.body;
+        const user = await User.findByEmail(email);
+
+        if (password != confirm_password) {
+            req.flash('error_msg', 'Password does not match!');
+            res.redirect('/user/register');
+            return;
+        }
+        if (user) {
+            req.flash('error_msg', 'Email exists');
+            res.redirect('/user/register');
+            return
+        }
+        const id = await User.createNewUser({ email, password, first_name, last_name });
+        const token = User.generateToken(id);
+
+        const userResponse = {
+            user_id: id,
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
         };
+        
+        userData = {
+            token,
+            user: userResponse
+        };
+
+        req.session.userData = userData;
+
+        req.flash('success_msg', 'Registration successful');
+        res.redirect('/user/dashboard');
+
+    } catch (err) {
+        next(err);
     }
 };
 
 exports.handleLogout = async (req, res, next) => {
     req.session.destroy(err => {
         if (err) {
-            console.error('Logout error:', err);
-            return res.status(500).render('error', { message: 'Logout failed' });
+            next(err);
         }
-
-        res.render('login');
+        res.redirect('/');
     });
 };

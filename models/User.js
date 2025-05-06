@@ -3,21 +3,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 class User {
-    static async create({ username, email, password }) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const [result] = await pool.query(
-            'INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-            [username, email, hashedPassword]
-        );
-        return result.insertId;
-    }
 
-    static async createNewUser({ username, email, password, firstName, lastName }) {
+    static async createNewUser({ email, password, first_name, last_name }) {
         const hashedPassword = await bcrypt.hash(password, 10);
         const [result] = await pool.query(
-            'INSERT INTO users (username, email, password, firstName, lastName) VALUES (?, ?, ?, ?, ?)',
-            [username, email, hashedPassword, firstName, lastName]
+            'INSERT INTO users (email, password, first_name, last_name, bio) VALUES (?, ?, ?, ?, ?)',
+            [email, hashedPassword, first_name, last_name, '']
         );
+
         return result.insertId;
     }
 
@@ -31,8 +24,8 @@ class User {
         return rows[0];
     }
 
-    static generateToken(user) {
-        return jwt.sign({ id: user.user_id }, process.env.JWT_SECRET, {
+    static generateToken(id) {
+        return jwt.sign({ id: id }, process.env.JWT_SECRET, {
             expiresIn: '1h'
         });
     }

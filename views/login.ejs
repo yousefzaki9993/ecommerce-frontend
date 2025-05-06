@@ -17,7 +17,16 @@
                 <h2>Welcome Back</h2>
                 <p>Please sign in to your account</p>
             </div>
-
+            <% if (success_msg && success_msg.length> 0) { %>
+                <div class="alert alert-success">
+                    <%= success_msg %>
+                </div>
+            <% } %>
+            <% if (error_msg.length> 0) { %>
+                <div class="alert alert-danger">
+                    <%= error_msg %>
+                </div>
+            <% } %>
             <form id="loginForm" method="POST" action="/user/login">
                 <div class="mb-3">
                     <label for="loginEmail" class="form-label">Email Address</label>
@@ -46,17 +55,6 @@
 
                 <div class="text-center">
                     <p>Don't have an account? <a href="/user/register">Sign up</a></p>
-                </div>
-
-                <div class="divider">or</div>
-
-                <div class="social-login">
-                    <button type="button" class="btn btn-outline-secondary w-100 mb-2">
-                        <i class="fab fa-google me-2"></i> Sign in with Google
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary w-100">
-                        <i class="fab fa-facebook-f me-2"></i> Sign in with Facebook
-                    </button>
                 </div>
             </form>
         </div>
