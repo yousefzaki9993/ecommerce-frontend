@@ -201,22 +201,16 @@ function updateReviewSection() {
 // Initialize profile picture change
 function initProfilePictureChange() {
     var changeBtn = document.getElementById('changePictureBtn');
-    var fileInput = document.getElementById('profilePictureInput');
-    var profileImage = document.getElementById('profileImage');
+    const profileImageInput = document.getElementById('profileImageInput');
+    const profileImage = document.getElementById('profileImage');
     
-    changeBtn.addEventListener('click', function() {
-        fileInput.click();
-    });
-    
-    fileInput.addEventListener('change', function(e) {
-        if (e.target.files && e.target.files[0]) {
-            var reader = new FileReader();
-            
-            reader.onload = function(event) {
-                profileImage.src = event.target.result;
-            };
-            
-            reader.readAsDataURL(e.target.files[0]);
-        }
+    changeBtn.addEventListener('click', () => {
+        if (profileImage.src.includes('female.png')) {
+            profileImage.src = '/assets/male.png';
+            profileImageInput.value = 'male.png';
+          } else {
+            profileImage.src = '/assets/female.png';
+            profileImageInput.value = 'female.png';
+          }
     });
 }

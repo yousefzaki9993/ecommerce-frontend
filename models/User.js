@@ -35,13 +35,20 @@ class User {
     }
 
     static async getUserData(id) {
-        const [rows] = await pool.query('SELECT email, first_name, last_name, profile_picture, bio FROM users WHERE user_id = ?', [id]);
+        const [rows] = await pool.query('SELECT email, first_name, last_name, profile_picture, bio, phone FROM users WHERE user_id = ?', [id]);
         return rows[0];
     }
 
     static async getAllUsers() {
         const [users] = await pool.query('SELECT user_id, first_name, last_name FROM users');
         return users;
+    }
+
+    static async updateUser({ email, first_name, last_name, phone, bio, profileImage }, id) {
+        await pool.query(
+            'UPDATE users SET email=?, first_name=?, last_name=?, bio=?, phone=?, profile_picture=? WHERE user_id=?',
+            [email, first_name, last_name, bio, phone, profileImage, id]
+        );
     }
 }
 

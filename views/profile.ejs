@@ -13,7 +13,16 @@
 <body>
     <!-- Navigation (same as dashboard.html) -->
     <%- include('./partial/nav_logged.ejs')%>
-
+    <% if (success_msg && success_msg.length> 0) { %>
+        <div class="alert alert-success">
+            <%= success_msg %>
+        </div>
+    <% } %>
+    <% if (error_msg.length> 0) { %>
+        <div class="alert alert-danger">
+            <%= error_msg %>
+        </div>
+    <% } %>
     <!-- Profile Section -->
     <section class="profile py-5">
         <div class="container">
@@ -29,7 +38,7 @@
                             <h4 class="mb-0">Profile Information</h4>
                         </div>
                         <div class="card-body">
-                            <form id="profileForm">
+                            <form id="profileForm" method="post" action="/user/profile">
                                 <div class="row mb-4">
                                     <div class="col-md-3">
                                         <div class="profile-picture">
@@ -40,8 +49,8 @@
                                                     id="changePictureBtn">
                                                     Change Picture
                                                 </button>
-                                                <input type="file" id="profilePictureInput" accept="image/*"
-                                                    style="display: none;">
+                                                <input type="hidden" id="profileImageInput" name="profileImage" 
+                                                value="<%= data.profile_picture %>">
                                             </div>
                                         </div>
                                     </div>
@@ -50,25 +59,25 @@
                                             <div class="col-md-6 mb-3">
                                                 <label for="profileFirstName" class="form-label">First Name</label>
                                                 <input type="text" class="form-control" id="profileFirstName"
-                                                    value="<%= data.first_name %>">
+                                                    value="<%= data.first_name %>" name="first_name">
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label for="profileLastName" class="form-label">Last Name</label>
                                                 <input type="text" class="form-control" id="profileLastName"
-                                                    value="<%= data.last_name %>">
+                                                    value="<%= data.last_name %>" name="last_name">
                                             </div>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="profileEmail" class="form-label">Email Address</label>
                                             <input type="email" class="form-control" id="profileEmail"
-                                                value="<%= data.email %>" readonly>
+                                                value="<%= data.email %>" name="email">
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="profilePhone" class="form-label">Phone Number</label>
                                             <input type="tel" class="form-control" id="profilePhone"
-                                                value="<%= data.phone %>">
+                                                value="<%= data.phone %>" name="phone">
                                         </div>
                                     </div>
                                 </div>
@@ -76,7 +85,7 @@
                                 <div class="mb-3">
                                     <label for="profileBio" class="form-label">Bio</label>
                                     <textarea class="form-control" id="profileBio"
-                                        rows="3"><%= data.bio %></textarea>
+                                        rows="3" name="bio"><%= data.bio %></textarea>
                                 </div>
 
                                 <div class="text-end">

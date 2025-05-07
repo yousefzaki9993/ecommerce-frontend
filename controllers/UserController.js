@@ -67,6 +67,7 @@ exports.handleLogin = async (req, res, next) => {
             first_name: user.first_name,
             last_name: user.last_name,
             email: user.email,
+            phone: user.phone,
         };
 
         let = userData = {
@@ -133,4 +134,40 @@ exports.handleLogout = async (req, res, next) => {
         }
         res.redirect('/');
     });
+};
+
+exports.handleUpdateProfile = async (req, res, next) => {
+    try {
+        const { email, first_name, last_name, phone, bio, profileImage } = req.body;
+        const user = await User.findByEmail(email);
+
+        if (email != req.session.userData.user.email && user) {
+            req.flash('error_msg', 'Email exists');
+            res.redirect('/user/profile');
+            return
+        }
+        if (first_name == '' || last_name == '') {
+            req.flash('error_msg', 'Name cannot be empty!');
+            res.redirect('/user/profile');
+            return
+        }
+        const id = req.session.userData.user.user_id;
+        await User.updateUser({ email, first_name, last_name, phone: phone || null, bio: bio || null, profileImage}, id);
+
+        const userResponse = {
+            user_id: id,
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            phone: phone,
+        };
+        
+        req.session.userData.user = userResponse;
+
+        req.flash('success_msg', 'Update successful');
+        res.redirect('/user/profile');
+
+    } catch (err) {
+        next(err);
+    }
 };
