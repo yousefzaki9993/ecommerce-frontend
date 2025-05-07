@@ -357,3 +357,33 @@ function resetFilters() {
         product.style.display = 'block';
     });
 }
+
+
+async function addToCart(event) {
+    const button = event.currentTarget;
+    const productId = button.getAttribute('data-id');
+    console.log(productId);
+
+    try {
+        response = await fetch('/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ productId }) 
+        });
+        
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            
+            updateCartCount();
+            alert('Item added to cart!');
+        } else {
+            alert('Failed to add to cart.');
+        }
+    } catch (error) {
+        console.error('Add to cart failed:', error);
+    }
+}
