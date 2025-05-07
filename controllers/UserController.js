@@ -3,6 +3,12 @@ require('express-session');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
+//APIs
+exports.apiGetUsers = async (req, res) => {
+    const users = await User.getAllUsers();
+    res.json(users);
+}
+
 // For rendering view
 exports.renderLogin = (req, res, next) => {
     try {

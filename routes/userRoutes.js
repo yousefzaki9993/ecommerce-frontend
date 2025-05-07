@@ -2,6 +2,7 @@ const express = require('express');
 const userRoutes = express.Router();
 const UserController = require('../controllers/UserController');
 
+userRoutes.get('/api/all', UserController.apiGetUsers);
 userRoutes.get('/login', UserController.renderLogin);
 userRoutes.post('/login', UserController.handleLogin);
 userRoutes.get('/register', UserController.renderRegister);

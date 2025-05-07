@@ -38,6 +38,11 @@ class User {
         const [rows] = await pool.query('SELECT email, first_name, last_name, profile_picture, bio FROM users WHERE user_id = ?', [id]);
         return rows[0];
     }
+
+    static async getAllUsers() {
+        const [users] = await pool.query('SELECT user_id, first_name, last_name FROM users');
+        return users;
+    }
 }
 
 module.exports = User;

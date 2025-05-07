@@ -12,8 +12,11 @@
 
 <body>
     <!-- Navigation -->
-    <%- include('./partial/nav.ejs')%>
-
+    <% if (session.userData ) { %>
+        <%- include('./partial/nav_logged.ejs')%>
+    <% } else { %>
+        <%- include('./partial/nav.ejs')%>
+    <% } %>
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
