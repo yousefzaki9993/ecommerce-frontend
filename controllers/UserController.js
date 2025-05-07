@@ -75,7 +75,8 @@ exports.handleLogin = async (req, res, next) => {
         };
 
         req.session.userData = userData;
-
+        req.session.cartId = null;
+        
         req.flash('success_msg', 'Login successful');
         res.redirect('/user/dashboard');
 
@@ -115,6 +116,7 @@ exports.handleRegister = async (req, res, next) => {
         };
 
         req.session.userData = userData;
+        req.session.cartId = null;
 
         req.flash('success_msg', 'Registration successful');
         res.redirect('/user/dashboard');
