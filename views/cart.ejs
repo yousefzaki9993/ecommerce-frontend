@@ -11,10 +11,8 @@
 </head>
 
 <body>
-    <!-- Navigation (same as index.html) -->
     <%- include('./partial/nav.ejs')%>
 
-    <!-- Shopping Cart Section -->
     <section class="shopping-cart py-5">
         <div class="container">
             <div class="row">
@@ -22,7 +20,7 @@
                     <div class="card">
                         <div class="card-header bg-white">
                             <h4 class="mb-0">
-                                Your Shopping Cart (<span id="cartItemCount">3</span> items)
+                                Your Shopping Cart (<span class="cartcount"><%= items.length %></span> items)
                             </h4>
                         </div>
                         <div class="card-body">
@@ -38,104 +36,44 @@
                                         </tr>
                                     </thead>
                                     <tbody id="cartItems">
-                                        <!-- Cart items will be loaded via JavaScript -->
-                                        <tr class="cart-item">
-                                            <td>
-                                                <div class="d-flex">
-                                                    <div class="cart-item-img me-3">
-                                                        <img src="assets/product1-thumb1.jpg" alt="Product"
-                                                            class="img-thumbnail" />
-                                                    </div>
-                                                    <div class="cart-item-details">
-                                                        <h6 class="mb-1">Premium Wireless Headphones</h6>
-                                                        <p class="text-muted mb-0">Color: Black</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>$199.99</td>
-                                            <td>
-                                                <div class="input-group" style="width: 120px">
-                                                    <button class="btn btn-outline-secondary" type="button">
-                                                        -
-                                                    </button>
-                                                    <input type="text" class="form-control text-center" value="1" />
-                                                    <button class="btn btn-outline-secondary" type="button">
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td>$199.99</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr class="cart-item">
-                                            <td>
-                                                <div class="d-flex">
-                                                    <div class="cart-item-img me-3">
-                                                        <img src="assets/product2-thumb1.jpg" alt="Product"
-                                                            class="img-thumbnail" />
-                                                    </div>
-                                                    <div class="cart-item-details">
-                                                        <h6 class="mb-1">Smart Watch Pro</h6>
-                                                        <p class="text-muted mb-0">Color: Silver</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>$249.99</td>
-                                            <td>
-                                                <div class="input-group" style="width: 120px">
-                                                    <button class="btn btn-outline-secondary" type="button">
-                                                        -
-                                                    </button>
-                                                    <input type="text" class="form-control text-center" value="1" />
-                                                    <button class="btn btn-outline-secondary" type="button">
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td>$249.99</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr class="cart-item">
-                                            <td>
-                                                <div class="d-flex">
-                                                    <div class="cart-item-img me-3">
-                                                        <img src="assets/product3-thumb1.jpg" alt="Product"
-                                                            class="img-thumbnail" />
-                                                    </div>
-                                                    <div class="cart-item-details">
-                                                        <h6 class="mb-1">Wireless Charger</h6>
-                                                        <p class="text-muted mb-0">Color: White</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>$39.99</td>
-                                            <td>
-                                                <div class="input-group" style="width: 120px">
-                                                    <button class="btn btn-outline-secondary" type="button">
-                                                        -
-                                                    </button>
-                                                    <input type="text" class="form-control text-center" value="2" />
-                                                    <button class="btn btn-outline-secondary" type="button">
-                                                        +
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td>$79.98</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-danger">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        <% if (items.length > 0) { %>
+                                            <% items.forEach(item => { %>
+                                                <tr class="cart-item" data-cart-item-id = "<%= item.cart_item_id %>">
+                                                    <td>
+                                                        <div class="d-flex">
+                                                            <div class="cart-item-img me-3">
+                                                                <img src="<%= '../assets/' + item.image %>" alt="Product"
+                                                                    class="img-thumbnail" />
+                                                            </div>
+                                                            <div class="cart-item-details">
+                                                                <h6 class="mb-1"><%= item.name %></h6>
+                                                                <p class="text-muted mb-0">Color: <%= item.color || 'N/A' %></p>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>$<%= item.price %></td>
+                                                    <td>
+                                                        <div class="input-group" style="width: 120px">
+                                                            <button class="btn btn-outline-secondary" type="button">-</button>
+                                                            <input type="text" class="form-control text-center" value="<%= item.quantity %>" />
+                                                            <button class="btn btn-outline-secondary" type="button">+</button>
+                                                        </div>
+                                                    </td>
+                                                    <td>$<%= (item.price * item.quantity) %></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-danger"  cart-item-id="<%= item.cart_item_id %>">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <% }) %>
+                                        <% } else { %>
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">Your cart is empty.</td>
+                                            </tr>
+                                        <% } %>
                                     </tbody>
+                                    
                                 </table>
                             </div>
 
@@ -170,25 +108,25 @@
                         </div>
                         <div class="card-body">
                             <div class="d-flex justify-content-between mb-2">
-                                <span>Subtotal (3 items)</span>
-                                <span>$529.96</span>
+                                <span class="cart-count-card">Subtotal (<%= items.length %> items)</span>
+                                <span id="subtotal"><%= cartTotal %></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Shipping</span>
-                                <span>$0.00</span>
+                                <span id="shipping">$0.00</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Tax</span>
-                                <span>$42.40</span>
+                                <span id="tax">$00.00</span>
                             </div>
                             <div class="d-flex justify-content-between mb-3">
                                 <span>Discount</span>
-                                <span class="text-danger">-$20.00</span>
+                                <span id="discount" class="text-danger">-$00.00</span>
                             </div>
                             <hr />
                             <div class="d-flex justify-content-between mb-3">
                                 <h5>Total</h5>
-                                <h5>$552.36</h5>
+                                <h5 id="total"><%= cartTotal %></h5>
                             </div>
                             <button class="btn btn-primary btn-lg w-100" id="checkoutBtn">
                                 Proceed to Checkout
@@ -200,9 +138,9 @@
                         <div class="card-body">
                             <h6 class="mb-3">We Accept</h6>
                             <div class="payment-methods">
-                                <img src="assets/visa.png" alt="Visa" class="img-fluid me-2" />
-                                <img src="assets/mastercard.png" alt="Mastercard" class="img-fluid me-2" />
-                                <img src="assets/paypal.png" alt="PayPal" class="img-fluid" />
+                                <img src="assets/visa.webp" alt="visa" class="img-fluid me-2" height="50" width="50"/>
+                                <img src="assets/mastercard.png" alt="Mastercard" class="img-fluid me-2" height="50" width="50"/>
+                                <img src="assets/paypal.png" alt="PayPal" class="img-fluid" height="50" width="50"/>
                             </div>
                             <div class="secure-checkout mt-3">
                                 <i class="fas fa-lock text-success me-2"></i>
