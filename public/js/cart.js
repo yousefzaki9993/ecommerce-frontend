@@ -83,92 +83,112 @@ function initCartQuantitySelector(selector) {
 }
 
 // Update cart item total
-function updateCartItemTotal(row) {
+async function updateCartItemTotal(row) {
     var priceText = row.querySelector('td:nth-child(2)').textContent;
     var price = parseFloat(priceText.replace('$', ''));
     var quantity = parseInt(row.querySelector('input').value);
     var total = price * quantity;
-    
     row.querySelector('td:nth-child(4)').textContent = '$' + total.toFixed(2);
-}
 
-// Update cart total
-function updateCartTotal() {
-    var rows = document.querySelectorAll('#cartItems tr');
-    var subtotal = 0;
-    
-    rows.forEach(function(row) {
-        var totalText = row.querySelector('td:nth-child(4)').textContent;
-        var total = parseFloat(totalText.replace('$', ''));
-        subtotal += total;
-    });
-    
-    // Calculate tax (sample rate)
-    var taxRate = 0.08; // 8%
-    var tax = subtotal * taxRate;
-    
-    // Apply discount (sample)
-    var discount = 20.00;
-    
-    // Calculate total
-    var total = subtotal + tax - discount;
-    
-    // Update display
-    if (document.getElementById('cartItemCount')) {
-        document.getElementById('cartItemCount').textContent = rows.length;
+    const cartItemId = row.getAttribute('data-cart-item-id');
+
+    try {
+        const response = await fetch(`/cart/update/${cartItemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ quantity: quantity })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+            console.error('Failed to update cart item on server');
+        }
+    } catch (error) {
+        console.error('Error updating cart item:', error);
     }
-    
-    if (document.querySelector('.order-summary-totals')) {
-        document.querySelector('.order-summary-totals span:nth-child(2)').textContent = '$' + subtotal.toFixed(2);
-        document.querySelector('.order-summary-totals span:nth-child(4)').textContent = '$' + tax.toFixed(2);
-        document.querySelector('.order-summary-totals span:nth-child(6)').textContent = '-$' + discount.toFixed(2);
-        document.querySelector('.order-summary-totals h5:nth-child(8)').textContent = '$' + total.toFixed(2);
-    }
-    
-    // Update cart count in navbar
-    updateCartCount();
-}
 
-// Add to cart
-function addToCart() {
-    // In a real app, you would get product details from the page or your backend
-    var product = {
-        id: 1,
-        name: 'Premium Wireless Headphones',
-        price: 199.99,
-        image: 'assets/product1-thumb1.jpg',
-        color: document.getElementById('colorSelect') ? document.getElementById('colorSelect').value : 'Black',
-        quantity: document.getElementById('quantitySelect') ? parseInt(document.getElementById('quantitySelect').value) : 1
-    };
-    
-    // In a real app, you would add this to your cart in localStorage or send to backend
-    console.log('Adding to cart:', product);
-    
-    // Update cart count
-    updateCartCount();
-    
-    // Show success message
-    alert(product.name + ' has been added to your cart!');
-    
-    // If on product page, you might want to redirect to cart
-    // window.location.href = '/products/cart';
-}
-
-// Remove cart item
-function removeCartItem() {
-    var row = this.closest('tr');
-    row.remove();
     updateCartTotal();
 }
 
-// Clear cart
-function clearCart() {
-    if (confirm('Are you sure you want to clear your cart?')) {
-        var cartItems = document.getElementById('cartItems');
-        while (cartItems.firstChild) {
-            cartItems.removeChild(cartItems.firstChild);
+async function updateCartTotal() {
+    //var rows = document.querySelectorAll('#cartItems tr');
+    
+    const response = await fetch('/cart/subtotal');
+    const data = await response.json();
+
+    const { subtotal } = data;
+    
+    // Calculate tax (sample rate)
+    var taxRate = 0.08; 
+    var tax = subtotal * taxRate;
+    
+    //var discount = 20.00;
+    
+    var total = parseFloat(subtotal) + tax; //- discount;
+    
+
+    document.getElementById('subtotal').textContent = '$' + subtotal;
+    document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+    //document.getElementById('discount').textContent = '-$' + discount;
+    document.getElementById('total').textContent = '$' + total.toFixed(2);
+    document.getElementById('shipping').textContent = '$' + '00.00';
+    
+    
+    updateCartCount();
+}
+
+
+// Remove cart item
+async function removeCartItem(event) {
+    event.preventDefault(); // Prevent default form/button behavior
+
+    const button = event.currentTarget;
+    const Id = button.getAttribute('cart-item-id');
+    console.log(Id);
+    try {
+        const response = await fetch(`/cart/remove/${Id}`, {
+            method: 'POST'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            const row = button.closest('tr');
+            row.remove();
+            updateCartTotal();
+        } else {
+            alert('Failed to remove item');
         }
-        updateCartTotal();
+    } catch (error) {
+        console.error('Remove item failed:', error);
+    }
+}
+
+
+async function clearCart() {
+    if (confirm('Are you sure you want to cleear your cart?')) {
+        try {
+            const response = await fetch(`/cart/removeAll`, {
+                method: 'POST'
+            });
+    
+            const result = await response.json();
+    
+            if (result.success) {
+                var cartItems = document.getElementById('cartItems');
+                while (cartItems.firstChild) {
+                cartItems.removeChild(cartItems.firstChild);
+                }
+                updateCartTotal();
+            } else {
+                alert('Failed to clear cart');
+            }
+        } catch (error) {
+            console.error('Clear cart failed:', error);
+        }
+        
     }
 }
 
@@ -180,7 +200,7 @@ function proceedToCheckout() {
 
 // Continue shopping
 function continueShopping() {
-    window.location.href = '/products';
+    window.location.href = '/';
 }
 
 // Place order
@@ -200,3 +220,27 @@ function placeOrder(e) {
     // In a real app, you would clear the cart after successful order
     // clearCart();
 }
+
+/*function addToCart() {
+    // In a real app, you would get product details from the page or your backend
+    var product = {
+        id: 1,
+        name: 'Premium Wireless Headphones',
+        price: 199.99,
+        image: 'assets/product1-thumb1.jpg',
+        color: document.getElementById('colorSelect') ? document.getElementById('colorSelect').value : 'Black',
+        quantity: document.getElementById('quantitySelect') ? parseInt(document.getElementById('quantitySelect').value) : 1
+    };
+    
+    
+    console.log('Adding to cart:', product);
+    
+    // Update cart count
+    updateCartCount();
+    
+    // Show success message
+    alert(product.name + ' has been added to your cart!');
+    
+    // If on product page, you might want to redirect to cart
+    // window.location.href = '/products/cart';
+}*/

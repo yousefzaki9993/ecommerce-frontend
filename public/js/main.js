@@ -36,15 +36,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Update cart count (sample function)
-function updateCartCount() {
+async function updateCartCount() {
     var cartCountElements = document.querySelectorAll('.cart-count');
-    // In a real app, this would come from your cart data
-    var count = 2; // Sample count
+    var cartCountElementsinCartPage = document.querySelectorAll('.cartcount');
+    var cartCountElementsinCard = document.querySelectorAll('.cart-count-card');
+
+    const response = await fetch('/cart/count');
+    const data = await response.json();
     
     cartCountElements.forEach(function(element) {
-        element.textContent = count;
+        element.textContent = data.count;
     });
+    cartCountElementsinCartPage.forEach(function(element) {
+        element.textContent = data.count;
+    });
+    cartCountElementsinCard.forEach(function(element) {
+        element.textContent = `Subtotal (${data.count} items)`;
+    });
+    
+
 }
 
 // Initialize product thumbnails interaction
