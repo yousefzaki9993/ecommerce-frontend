@@ -1,9 +1,14 @@
 require('dotenv').config();
 const session = require('express-session');
 const express = require('express');
+const cookieParser = require('cookie-parser');
+const MySQLStore = require('express-mysql-session')(session);
+const dbConfig = require('./config/db');
 const flash = require('connect-flash');
+
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 const app = express();
 
 // register view engine
@@ -11,14 +16,27 @@ app.set('view engine', 'ejs');
 
 // Middleware
 app.use(express.static('public'));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    resave: false,
+
+app.use(session({/*
+    store: new MySQLStore({
+        host: dbConfig.host,
+        port: 3306,
+        user: dbConfig.user,
+        password: dbConfig.password,
+        database: dbConfig.database
+    }),*/
     secret: 'secret',
-    saveUninitialized: true,
-    cookie: { secure: false },
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    }
 }));
+
+
 app.use(flash());
 app.use((req, res, next) => {
     console.log(`Recieved a ${req.method} request to ${req.url}`);
@@ -38,9 +56,11 @@ app.use(function (req, res, next) {
 app.use('/products', productRoutes);
 app.use('/user', userRoutes);
 //app.use('/orders', orderRoutes);
+app.use('/cart', cartRoutes);
 
 app.get('/', async (req, res, next) => {
     try {
+        console.log('hello');
         res.render('index');
     } catch (error) {
         next(error);
@@ -63,3 +83,4 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
