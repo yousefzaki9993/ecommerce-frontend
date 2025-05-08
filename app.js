@@ -9,6 +9,7 @@ const flash = require('connect-flash');
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const adminRoutes = require('./routes/AdminRoutes');
 const app = express();
 
 // register view engine
@@ -57,6 +58,7 @@ app.use('/products', productRoutes);
 app.use('/user', userRoutes);
 //app.use('/orders', orderRoutes);
 app.use('/cart', cartRoutes);
+app.use('/admin', adminRoutes);
 
 app.get('/', async (req, res, next) => {
     try {

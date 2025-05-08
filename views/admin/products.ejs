@@ -80,8 +80,10 @@
                                 <th>Image</th>
                                 <th>Name</th>
                                 <th>Price</th>
+                                <th>Discount</th>
                                 <th>Stock</th>
-                                <th>Status</th>
+                                <th>Category</th>
+                                <th>Rating</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -114,6 +116,16 @@
                                     <input type="number" step="0.01" class="form-control" id="productPrice" required>
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="productDiscount" class="form-label">Discount Rate</label>
+                                    <input type="number" step="0.01" class="form-control" id="productDiscount" value="0.00">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="productRating" class="form-label">Rating</label>
+                                    <input type="number" step="0.1" class="form-control" id="productRating" value="0.0" min="0" max="5">
+                                </div>
+                            </div>
                             <div class="mb-3">
                                 <label for="productDescription" class="form-label">Description*</label>
                                 <textarea class="form-control" id="productDescription" rows="3" required></textarea>
@@ -123,9 +135,9 @@
                                     <label for="productCategory" class="form-label">Category*</label>
                                     <select class="form-select" id="productCategory" required>
                                         <option value="">Select Category</option>
-                                        <option value="electronics">Electronics</option>
-                                        <option value="clothing">Clothing</option>
-                                        <option value="home">Home & Garden</option>
+                                        <option value="Electronics">Electronics</option>
+                                        <option value="Clothing">Clothing</option>
+                                        <option value="Home">Home & Garden</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6 mb-3">
@@ -134,9 +146,9 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="productImages" class="form-label">Product Images</label>
-                                <input type="file" class="form-control" id="productImages" multiple accept="image/*">
-                                <div id="imagePreview" class="mt-2 d-flex flex-wrap gap-2"></div>
+                                <label for="productImages" class="form-label">Product Image</label>
+                                <input type="file" class="form-control" id="productImages" accept="image/*">
+                                <div id="imagePreview" class="mt-2"></div>
                             </div>
                         </form>
                     </div>
@@ -151,70 +163,54 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Product Management System
         document.addEventListener('DOMContentLoaded', function () {
             const productModal = new bootstrap.Modal('#productModal');
             const productForm = document.getElementById('productForm');
             const productsTable = document.getElementById('productsTable').getElementsByTagName('tbody')[0];
 
-            // Sample product data
-            let products = [
-                {
-                    id: 1,
-                    name: 'Premium Wireless Headphones',
-                    price: 199.99,
-                    description: 'Noise-cancelling wireless headphones with 30hr battery',
-                    category: 'electronics',
-                    stock: 45,
-                    status: 'active',
-                    images: ['product1.jpg']
-                },
-                {
-                    id: 2,
-                    name: 'Smart Watch Pro',
-                    price: 249.99,
-                    description: 'Fitness tracking smartwatch with heart rate monitor',
-                    category: 'electronics',
-                    stock: 12,
-                    status: 'active',
-                    images: ['product2.jpg']
+            async function loadProducts() {
+                try {
+                    const response = await fetch('../products/api/all');
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const products = await response.json();
+                    productsTable.innerHTML = '';
+
+                    products.forEach(product => {
+                        const row = productsTable.insertRow();
+                        row.innerHTML = `
+                            <td>${product.product_id}</td>
+                            <td><img src="../assets/images/${product.image}" width="50" alt="${product.name}"></td>
+                            <td>${product.name}</td>
+                            <td>$${parseFloat(product.price).toFixed(2)}</td>
+                            <td>${(parseFloat(product.discount_rate)*100).toFixed(0)}%</td>
+                            <td>${product.stock_quantity}</td>
+                            <td>${product.category}</td>
+                            <td>${product.rating}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${product.product_id}">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${product.product_id}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                    });
+
+                    document.querySelectorAll('.edit-btn').forEach(btn => {
+                        btn.addEventListener('click', editProduct);
+                    });
+
+                    document.querySelectorAll('.delete-btn').forEach(btn => {
+                        btn.addEventListener('click', deleteProduct);
+                    });
+                } catch (error) {
+                    console.error('Error loading products:', error);
+                    alert('Failed to load products');
                 }
-            ];
-
-            // Load products into table
-            function loadProducts() {
-                productsTable.innerHTML = '';
-                products.forEach(product => {
-                    const row = productsTable.insertRow();
-                    row.innerHTML = `
-                        <td>${product.id}</td>
-                        <td><img src="../assets/images/${product.images[0]}" width="50" alt="${product.name}"></td>
-                        <td>${product.name}</td>
-                        <td>$${product.price.toFixed(2)}</td>
-                        <td>${product.stock}</td>
-                        <td><span class="badge ${product.status === 'active' ? 'bg-success' : 'bg-secondary'}">${product.status}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${product.id}">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${product.id}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                });
-
-                // Add event listeners to buttons
-                document.querySelectorAll('.edit-btn').forEach(btn => {
-                    btn.addEventListener('click', editProduct);
-                });
-
-                document.querySelectorAll('.delete-btn').forEach(btn => {
-                    btn.addEventListener('click', deleteProduct);
-                });
             }
 
-            // Add new product
             document.getElementById('addProductBtn').addEventListener('click', function () {
                 document.getElementById('modalTitle').textContent = 'Add New Product';
                 productForm.reset();
@@ -223,103 +219,132 @@
                 productModal.show();
             });
 
-            // Edit product
-            function editProduct(e) {
-                const productId = parseInt(e.currentTarget.getAttribute('data-id'));
-                const product = products.find(p => p.id === productId);
+            async function editProduct(e) {
+                const productId = e.currentTarget.getAttribute('data-id');
 
-                if (product) {
-                    document.getElementById('modalTitle').textContent = 'Edit Product';
-                    document.getElementById('productId').value = product.id;
-                    document.getElementById('productName').value = product.name;
-                    document.getElementById('productPrice').value = product.price;
-                    document.getElementById('productDescription').value = product.description;
-                    document.getElementById('productCategory').value = product.category;
-                    document.getElementById('productStock').value = product.stock;
+                try {
+                    const response = await fetch(`../products/api/edit/${productId}`);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const product = await response.json();
 
-                    // Clear and show image previews
-                    const imagePreview = document.getElementById('imagePreview');
-                    imagePreview.innerHTML = '';
-                    product.images.forEach(image => {
-                        const img = document.createElement('img');
-                        img.src = `../assets/images/${image}`;
-                        img.width = 80;
-                        img.classList.add('img-thumbnail');
-                        imagePreview.appendChild(img);
-                    });
+                    if (product) {
+                        document.getElementById('modalTitle').textContent = 'Edit Product';
+                        document.getElementById('productId').value = product.product_id;
+                        document.getElementById('productName').value = product.name;
+                        document.getElementById('productPrice').value = product.price;
+                        document.getElementById('productDiscount').value = product.discount_rate;
+                        document.getElementById('productDescription').value = product.description;
+                        document.getElementById('productCategory').value = product.category;
+                        document.getElementById('productStock').value = product.stock_quantity;
+                        document.getElementById('productRating').value = product.rating;
 
-                    productModal.show();
+                        const imagePreview = document.getElementById('imagePreview');
+                        imagePreview.innerHTML = '';
+                        if (product.image) {
+                            const img = document.createElement('img');
+                            img.src = `/assets/images/${product.image}`;
+                            img.width = 80;
+                            img.classList.add('img-thumbnail');
+                            imagePreview.appendChild(img);
+                        }
+
+                        productModal.show();
+                    }
+                } catch (error) {
+                    console.error('Error fetching product:', error);
+                    alert('Failed to load product details');
                 }
             }
 
-            // Save product
-            document.getElementById('saveProductBtn').addEventListener('click', function () {
+            document.getElementById('saveProductBtn').addEventListener('click', async function () {
                 if (productForm.checkValidity()) {
                     const productId = document.getElementById('productId').value;
                     const productData = {
-                        id: productId ? parseInt(productId) : products.length + 1,
                         name: document.getElementById('productName').value,
                         price: parseFloat(document.getElementById('productPrice').value),
+                        discount_rate: parseFloat(document.getElementById('productDiscount').value) || 0,
                         description: document.getElementById('productDescription').value,
                         category: document.getElementById('productCategory').value,
-                        stock: parseInt(document.getElementById('productStock').value),
-                        status: 'active',
-                        images: ['product' + (products.length + 1) + '.jpg'] // In real app, handle file uploads
+                        stock_quantity: parseInt(document.getElementById('productStock').value),
+                        rating: parseFloat(document.getElementById('productRating').value) || 0,
+                        image: 'product' + (Math.random() * 1000).toFixed(0) + '.png'
                     };
 
-                    if (productId) {
-                        // Update existing product
-                        const index = products.findIndex(p => p.id === parseInt(productId));
-                        if (index !== -1) {
-                            products[index] = productData;
+                    try {
+                        let response;
+                        if (productId) {
+                            // Update existing product
+                            response = await fetch(`../products/api/edit/${productId}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(productData),
+                            });
+                        } else {
+                            // Create new product
+                            response = await fetch('../products/api/add', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(productData),
+                            });
                         }
-                    } else {
-                        // Add new product
-                        products.push(productData);
-                    }
 
-                    loadProducts();
-                    productModal.hide();
+                        if (!response.ok) throw new Error('Network response was not ok');
+
+                        loadProducts();
+                        productModal.hide();
+                    } catch (error) {
+                        console.error('Error saving product:', error);
+                        alert('Failed to save product');
+                    }
                 } else {
                     productForm.reportValidity();
                 }
             });
 
-            // Delete product
-            function deleteProduct(e) {
+            async function deleteProduct(e) {
                 if (confirm('Are you sure you want to delete this product?')) {
-                    const productId = parseInt(e.currentTarget.getAttribute('data-id'));
-                    products = products.filter(p => p.id !== productId);
-                    loadProducts();
+                    const productId = e.currentTarget.getAttribute('data-id');
+
+                    try {
+                        const response = await fetch(`../products/api/delete/${productId}`, {
+                            method: 'DELETE',
+                        });
+
+                        if (!response.ok) throw new Error('Network response was not ok');
+
+                        loadProducts();
+                    } catch (error) {
+                        console.error('Error deleting product:', error);
+                        alert('Failed to delete product');
+                    }
                 }
             }
 
-            // Image preview handler
             document.getElementById('productImages').addEventListener('change', function (e) {
-                const files = e.target.files;
+                const file = e.target.files[0];
                 const imagePreview = document.getElementById('imagePreview');
                 imagePreview.innerHTML = '';
 
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    if (file.type.match('image.*')) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.width = 80;
-                            img.classList.add('img-thumbnail');
-                            imagePreview.appendChild(img);
-                        }
-                        reader.readAsDataURL(file);
-                    }
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.width = 80;
+                        img.classList.add('img-thumbnail');
+                        imagePreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
 
-            // Initial load
             loadProducts();
         });
     </script>
 </body>
-
 </html>
