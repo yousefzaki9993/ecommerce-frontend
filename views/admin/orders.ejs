@@ -41,17 +41,17 @@
         <hr>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/admin/products">
+                <a class="nav-link text-white-50" href="products">
                     <i class="bi bi-box-seam"></i> Products
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active text-white" href="/admin/orders">
+                <a class="nav-link active text-white" href="orders">
                     <i class="bi bi-receipt"></i> Orders
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/admin/inventory">
+                <a class="nav-link text-white-50" href="inventory">
                     <i class="bi bi-clipboard-data"></i> Inventory
                 </a>
             </li>
@@ -68,19 +68,20 @@
                         <label class="form-label">Status:</label>
                         <select class="form-select" id="statusFilter">
                             <option value="">All Orders</option>
-                            <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
-                            <option value="processing" <%= statusFilter === 'processing' ? 'selected' : '' %>>Processing</option>
-                            <option value="shipped" <%= statusFilter === 'shipped' ? 'selected' : '' %>>Shipped</option>
-                            <option value="delivered" <%= statusFilter === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipped">Shipped</option>
+                            <option value="delivered">Delivered</option>
+                            <option value="cancelled">Cancelled</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">From:</label>
-                        <input type="date" class="form-control" id="dateFrom" value="<%= dateFrom || '' %>">
+                        <input type="date" class="form-control" id="dateFrom">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">To:</label>
-                        <input type="date" class="form-control" id="dateTo" value="<%= dateTo || '' %>">
+                        <input type="date" class="form-control" id="dateTo">
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button class="btn btn-primary w-100" id="filterBtn">
@@ -98,7 +99,7 @@
                         <thead>
                             <tr>
                                 <th>Order ID</th>
-                                <th>User ID</th>
+                                <th>Customer</th>
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th class="order-status">Status</th>
@@ -106,34 +107,8 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <% orders.forEach(order => { %>
-                                <tr>
-                                    <td>#<%= order.id %></td>
-                                    <td><%= order.user_id %></td>
-                                    <td><%= new Date(order.created_at).toLocaleDateString() %></td>
-                                    <td>$<%= order.total_amount.toFixed(2) %></td>
-                                    <td>
-                                        <span class="badge <%= 
-                                            order.status === 'pending' ? 'bg-warning' :
-                                            order.status === 'processing' ? 'bg-info' :
-                                            order.status === 'shipped' ? 'bg-primary' :
-                                            order.status === 'delivered' ? 'bg-success' : 'bg-secondary'
-                                        %>">
-                                            <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
-                                        </span>
-                                    </td>
-                                    <td><%= order.payment_method %></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary view-btn" 
-                                                data-id="<%= order.id %>"
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#orderModal">
-                                            <i class="bi bi-eye"></i> View
-                                        </button>
-                                    </td>
-                                </tr>
-                            <% }); %>
+                        <tbody id="ordersTableBody">
+                            <!-- Orders will be loaded here -->
                         </tbody>
                     </table>
                 </div>
@@ -142,7 +117,7 @@
 
         <!-- Order Detail Modal -->
         <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Order Details - #<span id="orderIdTitle"></span></h5>
@@ -151,10 +126,8 @@
                     <div class="modal-body">
                         <div class="row mb-4">
                             <div class="col-md-6">
-                                <h6>Order Information</h6>
-                                <div class="mb-2"><strong>Order Date:</strong> <span id="orderDate"></span></div>
-                                <div class="mb-2"><strong>Payment Method:</strong> <span id="paymentMethod"></span></div>
-                                <div class="mb-2"><strong>Status:</strong> <span id="orderStatusBadge"></span></div>
+                                <h6>Customer Information</h6>
+                                <p id="customerInfo"></p>
                             </div>
                             <div class="col-md-6">
                                 <h6>Shipping Address</h6>
@@ -201,11 +174,12 @@
                         <div class="mt-4">
                             <label class="form-label">Update Status:</label>
                             <div class="d-flex gap-2">
-                                <select class="form-select" id="orderStatusSelect">
+                                <select class="form-select" id="orderStatus">
                                     <option value="pending">Pending</option>
                                     <option value="processing">Processing</option>
                                     <option value="shipped">Shipped</option>
                                     <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
                                 </select>
                                 <button class="btn btn-primary" id="updateStatusBtn">Update</button>
                             </div>
@@ -226,72 +200,113 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const orderModal = new bootstrap.Modal('#orderModal');
-            const orderModalEl = document.getElementById('orderModal');
-            
-            // Load order details when modal opens
-            orderModalEl.addEventListener('show.bs.modal', async function (event) {
-                const button = event.relatedTarget;
-                const orderId = button.getAttribute('data-id');
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            let currentOrderId = null;
+
+            // Load orders from API
+            async function loadOrders() {
+                try {
+                    const response = await fetch('http://localhost:3000/orders/api/all');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch orders');
+                    }
+                    const orders = await response.json();
+                    renderOrders(orders);
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    alert('Failed to load orders');
+                }
+            }
+
+            // Render orders in table
+            function renderOrders(orders) {
+                ordersTableBody.innerHTML = '';
+                
+                orders.forEach(order => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#${order.order_id}</td>
+                        <td>${order.email}</td>
+                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                        <td>$${parseFloat(order.total_amount).toFixed(2)}</td>
+                        <td>
+                            <span class="badge ${getStatusBadgeClass(order.status)}">
+                                ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            </span>
+                        </td>
+                        <td>${order.payment_method}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary view-btn" 
+                                    data-id="${order.order_id}">
+                                <i class="bi bi-eye"></i> View
+                            </button>
+                        </td>
+                    `;
+                    ordersTableBody.appendChild(row);
+                });
+
+                // Add event listeners to view buttons
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    btn.addEventListener('click', viewOrderDetails);
+                });
+            }
+
+            // View order details
+            async function viewOrderDetails(e) {
+                const orderId = e.currentTarget.getAttribute('data-id');
+                currentOrderId = orderId;
                 
                 try {
-                    const response = await fetch(`/admin/orders/${orderId}/details`);
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    
+                    const response = await fetch(`http://localhost:3000/orders/api/${orderId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch order details');
+                    }
                     const order = await response.json();
                     
-                    // Fill order information
-                    document.getElementById('orderIdTitle').textContent = order.id;
-                    document.getElementById('orderDate').textContent = new Date(order.created_at).toLocaleString();
-                    document.getElementById('paymentMethod').textContent = order.payment_method;
+                    // Fill modal with order details
+                    document.getElementById('orderIdTitle').textContent = order.order_id;
+                    document.getElementById('customerInfo').innerHTML = `
+                        ${order.email}<br>
+                        ${order.shipping_address.split(',')[0]}<br>
+                        ${order.shipping_address.split(',')[1]}
+                    `;
                     document.getElementById('shippingAddress').textContent = order.shipping_address;
 
-                    // Set status badge
-                    const statusBadge = document.getElementById('orderStatusBadge');
-                    statusBadge.innerHTML = `
-                        <span class="badge ${getStatusBadgeClass(order.status)}">
-                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </span>
+                    // Set current status in select
+                    document.getElementById('orderStatus').value = order.status;
+
+                    // For now, we'll use sample items since they're not in your API response
+                    const itemsTable = document.getElementById('orderItemsTable').getElementsByTagName('tbody')[0];
+                    itemsTable.innerHTML = `
+                        <tr>
+                            <td>Sample Product</td>
+                            <td>$${parseFloat(order.total_amount).toFixed(2)}</td>
+                            <td>1</td>
+                            <td>$${parseFloat(order.total_amount).toFixed(2)}</td>
+                        </tr>
                     `;
 
-                    // Set current status in select
-                    document.getElementById('orderStatusSelect').value = order.status;
-                    document.getElementById('updateStatusBtn').setAttribute('data-id', order.id);
-
-                    // Load order items (assuming items are included in the response)
-                    const itemsTable = document.getElementById('orderItemsTable').getElementsByTagName('tbody')[0];
-                    itemsTable.innerHTML = '';
-
-                    if (order.items && order.items.length > 0) {
-                        order.items.forEach(item => {
-                            const row = itemsTable.insertRow();
-                            row.innerHTML = `
-                                <td>${item.product_name || 'Product'}</td>
-                                <td>$${item.price ? item.price.toFixed(2) : '0.00'}</td>
-                                <td>${item.quantity || 1}</td>
-                                <td>$${item.price && item.quantity ? (item.price * item.quantity).toFixed(2) : '0.00'}</td>
-                            `;
-                        });
-                    }
-
                     // Set order totals
-                    document.getElementById('orderSubtotal').textContent = `$${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}`;
-                    document.getElementById('orderShipping').textContent = '$0.00'; // Adjust if you have shipping data
-                    document.getElementById('orderTax').textContent = '$0.00'; // Adjust if you have tax data
-                    document.getElementById('orderTotal').textContent = `$${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}`;
+                    document.getElementById('orderSubtotal').textContent = `$${parseFloat(order.total_amount).toFixed(2)}`;
+                    document.getElementById('orderShipping').textContent = '$0.00';
+                    document.getElementById('orderTax').textContent = '$0.00';
+                    document.getElementById('orderTotal').textContent = `$${parseFloat(order.total_amount).toFixed(2)}`;
 
+                    orderModal.show();
                 } catch (error) {
                     console.error('Error loading order details:', error);
                     alert('Failed to load order details');
                 }
-            });
+            }
 
             // Update order status
             document.getElementById('updateStatusBtn').addEventListener('click', async function () {
-                const orderId = this.getAttribute('data-id');
-                const newStatus = document.getElementById('orderStatusSelect').value;
+                if (!currentOrderId) return;
+                
+                const newStatus = document.getElementById('orderStatus').value;
                 
                 try {
-                    const response = await fetch(`/admin/orders/${orderId}/status`, {
+                    const response = await fetch(`http://localhost:3000/orders/api/${currentOrderId}/status`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -299,10 +314,13 @@
                         body: JSON.stringify({ status: newStatus })
                     });
                     
-                    if (!response.ok) throw new Error('Network response was not ok');
+                    if (!response.ok) {
+                        throw new Error('Failed to update order status');
+                    }
                     
                     orderModal.hide();
-                    window.location.reload();
+                    loadOrders(); // Refresh the orders list
+                    alert('Order status updated successfully');
                 } catch (error) {
                     console.error('Error updating order status:', error);
                     alert('Failed to update order status');
@@ -310,17 +328,27 @@
             });
 
             // Filter orders
-            document.getElementById('filterBtn').addEventListener('click', function () {
+            document.getElementById('filterBtn').addEventListener('click', async function () {
                 const status = document.getElementById('statusFilter').value;
                 const from = document.getElementById('dateFrom').value;
                 const to = document.getElementById('dateTo').value;
                 
-                let url = '/admin/orders?';
-                if (status) url += `status=${status}&`;
-                if (from) url += `from=${from}&`;
-                if (to) url += `to=${to}`;
-                
-                window.location.href = url;
+                try {
+                    let url = 'http://localhost:3000/orders/api/all?';
+                    if (status) url += `status=${status}&`;
+                    if (from) url += `from=${from}&`;
+                    if (to) url += `to=${to}`;
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch filtered orders');
+                    }
+                    const orders = await response.json();
+                    renderOrders(orders);
+                } catch (error) {
+                    console.error('Error filtering orders:', error);
+                    alert('Failed to filter orders');
+                }
             });
 
             // Print order
@@ -335,9 +363,13 @@
                     case 'processing': return 'bg-info';
                     case 'shipped': return 'bg-primary';
                     case 'delivered': return 'bg-success';
+                    case 'cancelled': return 'bg-danger';
                     default: return 'bg-secondary';
                 }
             }
+
+            // Initial load
+            loadOrders();
         });
     </script>
 </body>

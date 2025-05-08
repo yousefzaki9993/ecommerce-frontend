@@ -13,7 +13,9 @@ class Order {
           o.shipping_address,
           o.payment_method,
           o.created_at,
-          u.email
+          u.email,
+          u.first_name,
+          u.last_name
         FROM orders o
         JOIN users u ON o.user_id = u.user_id
         WHERE 1=1
@@ -21,19 +23,19 @@ class Order {
       
       const params = [];
   
-      if (filters.status) {
+      if (filters.status && filters.status.trim() !== '') {
         query += ' AND o.status = ?';
-        params.push(filters.status);
+        params.push(filters.status.trim());
       }
   
-      if (filters.from) {
+      if (filters.from && filters.from.trim() !== '') {
         query += ' AND DATE(o.created_at) >= ?';
-        params.push(filters.from);
+        params.push(filters.from.trim());
       }
   
-      if (filters.to) {
+      if (filters.to && filters.to.trim() !== '') {
         query += ' AND DATE(o.created_at) <= ?';
-        params.push(filters.to);
+        params.push(filters.to.trim());
       }
   
       query += ' ORDER BY o.created_at DESC';
@@ -46,11 +48,13 @@ class Order {
     }
   }
 
-  
+
+
+
   // Get order by ID with full details
   static async getById(orderId) {
     try {
-      // Get basic order info
+      // Get basic order info with user details
       const [orderRows] = await db.execute(`
         SELECT 
           o.order_id,
@@ -60,8 +64,9 @@ class Order {
           o.shipping_address,
           o.payment_method,
           o.created_at,
-          u.username,
           u.email,
+          u.first_name,
+          u.last_name,
           u.phone
         FROM orders o
         JOIN users u ON o.user_id = u.user_id
@@ -72,21 +77,29 @@ class Order {
 
       const order = orderRows[0];
 
-      // Get order items
+      // Get order items with product details
       const [items] = await db.execute(`
         SELECT 
           oi.order_item_id,
           oi.product_id,
           p.name AS product_name,
+          p.image AS product_image,
           oi.price,
           oi.quantity,
-          p.image_url
+          (oi.price * oi.quantity) AS item_total
         FROM order_items oi
         JOIN products p ON oi.product_id = p.product_id
         WHERE oi.order_id = ?
       `, [orderId]);
 
       order.items = items;
+      
+      // Calculate subtotal from items (for verification)
+      const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      // Add additional calculated fields
+      order.subtotal = subtotal;
+      order.shipping_fee = order.total_amount - subtotal; // Assuming shipping is the difference
       
       return order;
     } catch (error) {
@@ -98,23 +111,26 @@ class Order {
   // Update order status
   static async updateStatus(orderId, status) {
     try {
-      // Validate status
-      const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-      if (!validStatuses.includes(status)) {
-        throw new Error('Invalid order status');
-      }
+        const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+        if (!validStatuses.includes(status)) {
+            throw new Error('Invalid order status');
+        }
 
-      const [result] = await db.execute(
-        'UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE order_id = ?',
-        [status, orderId]
-      );
-      
-      return result.affectedRows > 0;
+        const [result] = await db.execute(
+            'UPDATE orders SET status = ? WHERE order_id = ?',
+            [status, orderId]
+        );
+        
+        return result.affectedRows > 0;
     } catch (error) {
-      console.error('Error updating order status:', error);
-      throw error;
+        console.error('Error updating order status:', error);
+        throw error;
     }
-  }
+}
+
+
+
+
 }
 
 module.exports = Order;

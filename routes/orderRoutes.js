@@ -1,17 +1,16 @@
 const express = require('express');
 const orderRoutes = express.Router();
 
+const AdminController = require('../controllers/adminController');
+
+
 orderRoutes.get('/', (req, res) => {
     res.render('products');
 });
 
-router.get('/orders/api/all', orderController.getAllOrders);
-
-router.get('/orders/api/:orderId', orderController.getOrderById);
-
-router.put('/orders/api/update/:orderId', orderController.updateOrderStatus);
-
-router.post('/orders/api/refund/:orderId', orderController.issueRefund);
+orderRoutes.get('/api/all', AdminController.getAllOrders);
+orderRoutes.get('/api/:id', AdminController.getOrderDetails);
+orderRoutes.put('/api/:id/status', AdminController.updateOrderStatus);
 
 
 
