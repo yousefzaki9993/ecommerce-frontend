@@ -78,7 +78,7 @@ async function loadFeaturedProducts() {
                         </div>
                     </div>
                     <div class="card-footer bg-white">
-                        <button class="btn btn-primary w-100 add-to-cart" data-id="${product.id}">
+                        <button class="btn btn-primary w-100 add-to-cart" data-id="${product.product_id}">
                             <i class="fas fa-shopping-cart me-2"></i>Add to Cart
                         </button>
                     </div>
@@ -125,7 +125,7 @@ async function loadAllProducts() {
                         </div>
                     </div>
                     <div class="card-footer bg-white">
-                        <button class="btn btn-primary w-100 add-to-cart" data-id="${product.id}">
+                        <button class="btn btn-primary w-100 add-to-cart" data-id="${product.product_id}">
                             <i class="fas fa-shopping-cart me-2"></i>Add to Cart
                         </button>
                     </div>
@@ -173,7 +173,7 @@ async function loadRelatedProducts() {
                         </div>
                     </div>
                     <div class="card-footer bg-white">
-                        <button class="btn btn-primary w-100 add-to-cart" data-id="${product.id}">
+                        <button class="btn btn-primary w-100 add-to-cart" data-id="${product.product_id}">
                             <i class="fas fa-shopping-cart me-2"></i>Add to Cart
                         </button>
                     </div>
