@@ -10,7 +10,9 @@ productRoutes.get('/:id', ProductController.renderProductsDetails);
 productRoutes.post('/review', ProductController.addReview);
 
 productRoutes.post('/api/add', ProductController.addProduct);
-productRoutes.put('/api/edit/:productId', ProductController.updateProduct);
+productRoutes.post('/api/edit/:productId', ProductController.updateProduct);
 productRoutes.delete('/api/delete/:productId', ProductController.deleteProduct);
+productRoutes.get('/api/get/:productId', ProductController.getProductById);
+
 
 module.exports = productRoutes;

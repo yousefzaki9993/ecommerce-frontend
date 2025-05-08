@@ -30,12 +30,31 @@ exports.addProduct = async (req, res, next) => {
 
 exports.updateProduct = async (req, res, next) => {
     try {
-        const { productId, name, description, price, discount_rate, stock_quantity, image, category, rating, reviews } = req.body;
+        const productId = req.params.productId;
+        const { name, description, price, discount_rate, stock_quantity, image, category, rating, reviews } = req.body;
+
         await Product.updateProduct({ productId, name, description, price, discount_rate, stock_quantity, image, category, rating, reviews });
-        req.flash('success_msg', 'Product Updated Successfully');
-        res.redirect('/products');
+
+        res.status(200).json({ message: 'Product Updated Successfully' });
     } catch (error) {
         next(error);
+    }
+};
+
+
+
+exports.getProductById = async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        const product = await Product.getProductDetails(productId);
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        res.status(200).json(product);
+    } catch (error) {
+        next(error); 
     }
 };
 

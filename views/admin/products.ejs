@@ -45,17 +45,17 @@
         <hr>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link active text-white" href="/products">
+                <a class="nav-link active text-white" href="products">
                     <i class="bi bi-box-seam"></i> Products
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/orders">
+                <a class="nav-link text-white-50" href="orders">
                     <i class="bi bi-receipt"></i> Orders
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/inventory">
+                <a class="nav-link text-white-50" href="inventory">
                     <i class="bi bi-clipboard-data"></i> Inventory
                 </a>
             </li>
@@ -223,7 +223,7 @@
                 const productId = e.currentTarget.getAttribute('data-id');
 
                 try {
-                    const response = await fetch(`../products/api/edit/${productId}`);
+                    const response = await fetch(`../products/api/get/${productId}`);
                     if (!response.ok) throw new Error('Network response was not ok');
                     
                     const product = await response.json();
@@ -276,7 +276,7 @@
                         if (productId) {
                             // Update existing product
                             response = await fetch(`../products/api/edit/${productId}`, {
-                                method: 'PUT',
+                                method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
@@ -312,10 +312,9 @@
 
                     try {
                         const response = await fetch(`../products/api/delete/${productId}`, {
-                            method: 'DELETE',
+                            method: 'DELETE'
                         });
 
-                        if (!response.ok) throw new Error('Network response was not ok');
 
                         loadProducts();
                     } catch (error) {

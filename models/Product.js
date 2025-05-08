@@ -54,10 +54,17 @@ class Product {
     }
 
     static async updateProduct(productData) {
-        const { productId, name, description, price, discount_rate, stock_quantity, image, category, rating, reviews } = productData;
-        const query = 'UPDATE products SET name = ?, description = ?, price = ?, discount_rate = ?, stock_quantity = ?, image = ?, category = ?, rating = ?, reviews = ? WHERE product_id = ?';
+        const { name, description, price, discount_rate, stock_quantity, image, category, rating, reviews, productId } = productData;
+    
+        const query = `
+            UPDATE products 
+            SET name = ?, description = ?, price = ?, discount_rate = ?, stock_quantity = ?, image = ?, category = ?, rating = ?, reviews = ? 
+            WHERE product_id = ?
+        `;
+        
         await pool.query(query, [name, description, price, discount_rate, stock_quantity, image, category, rating, reviews, productId]);
     }
+    
 
     static async deleteProduct(productId) {
         const query = 'DELETE FROM products WHERE product_id = ?';
