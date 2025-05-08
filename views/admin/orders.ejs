@@ -15,23 +15,19 @@
             background-color: #212529;
             color: white;
         }
-
         .admin-content {
             margin-left: 250px;
             padding: 20px;
         }
-
         .order-status {
             width: 120px;
         }
-
         @media (max-width: 991px) {
             .admin-sidebar {
                 width: 100%;
                 height: auto;
                 position: relative;
             }
-
             .admin-content {
                 margin-left: 0;
             }
@@ -45,17 +41,17 @@
         <hr>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/products">
+                <a class="nav-link text-white-50" href="/admin/products">
                     <i class="bi bi-box-seam"></i> Products
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active text-white" href="/orders">
+                <a class="nav-link active text-white" href="/admin/orders">
                     <i class="bi bi-receipt"></i> Orders
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/inventory">
+                <a class="nav-link text-white-50" href="/admin/inventory">
                     <i class="bi bi-clipboard-data"></i> Inventory
                 </a>
             </li>
@@ -72,20 +68,19 @@
                         <label class="form-label">Status:</label>
                         <select class="form-select" id="statusFilter">
                             <option value="">All Orders</option>
-                            <option value="pending">Pending</option>
-                            <option value="processing">Processing</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
+                            <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Pending</option>
+                            <option value="processing" <%= statusFilter === 'processing' ? 'selected' : '' %>>Processing</option>
+                            <option value="shipped" <%= statusFilter === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                            <option value="delivered" <%= statusFilter === 'delivered' ? 'selected' : '' %>>Delivered</option>
                         </select>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">From:</label>
-                        <input type="date" class="form-control" id="dateFrom">
+                        <input type="date" class="form-control" id="dateFrom" value="<%= dateFrom || '' %>">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">To:</label>
-                        <input type="date" class="form-control" id="dateTo">
+                        <input type="date" class="form-control" id="dateTo" value="<%= dateTo || '' %>">
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button class="btn btn-primary w-100" id="filterBtn">
@@ -103,15 +98,42 @@
                         <thead>
                             <tr>
                                 <th>Order ID</th>
-                                <th>Customer</th>
+                                <th>User ID</th>
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th class="order-status">Status</th>
+                                <th>Payment</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Orders will be loaded here -->
+                            <% orders.forEach(order => { %>
+                                <tr>
+                                    <td>#<%= order.id %></td>
+                                    <td><%= order.user_id %></td>
+                                    <td><%= new Date(order.created_at).toLocaleDateString() %></td>
+                                    <td>$<%= order.total_amount.toFixed(2) %></td>
+                                    <td>
+                                        <span class="badge <%= 
+                                            order.status === 'pending' ? 'bg-warning' :
+                                            order.status === 'processing' ? 'bg-info' :
+                                            order.status === 'shipped' ? 'bg-primary' :
+                                            order.status === 'delivered' ? 'bg-success' : 'bg-secondary'
+                                        %>">
+                                            <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                                        </span>
+                                    </td>
+                                    <td><%= order.payment_method %></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary view-btn" 
+                                                data-id="<%= order.id %>"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#orderModal">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                            <% }); %>
                         </tbody>
                     </table>
                 </div>
@@ -120,17 +142,19 @@
 
         <!-- Order Detail Modal -->
         <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Order Details - <span id="orderIdTitle"></span></h5>
+                        <h5 class="modal-title">Order Details - #<span id="orderIdTitle"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="row mb-4">
                             <div class="col-md-6">
-                                <h6>Customer Information</h6>
-                                <p id="customerInfo"></p>
+                                <h6>Order Information</h6>
+                                <div class="mb-2"><strong>Order Date:</strong> <span id="orderDate"></span></div>
+                                <div class="mb-2"><strong>Payment Method:</strong> <span id="paymentMethod"></span></div>
+                                <div class="mb-2"><strong>Status:</strong> <span id="orderStatusBadge"></span></div>
                             </div>
                             <div class="col-md-6">
                                 <h6>Shipping Address</h6>
@@ -177,12 +201,11 @@
                         <div class="mt-4">
                             <label class="form-label">Update Status:</label>
                             <div class="d-flex gap-2">
-                                <select class="form-select" id="orderStatus">
+                                <select class="form-select" id="orderStatusSelect">
                                     <option value="pending">Pending</option>
                                     <option value="processing">Processing</option>
                                     <option value="shipped">Shipped</option>
                                     <option value="delivered">Delivered</option>
-                                    <option value="cancelled">Cancelled</option>
                                 </select>
                                 <button class="btn btn-primary" id="updateStatusBtn">Update</button>
                             </div>
@@ -203,181 +226,101 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const orderModal = new bootstrap.Modal('#orderModal');
-            const ordersTable = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
-
-            // Sample order data
-            let orders = [
-                {
-                    id: 'ORD-1001',
-                    customer: 'John Doe',
-                    email: 'john@example.com',
-                    phone: '(555) 123-4567',
-                    date: '2023-06-15',
-                    amount: 199.99,
-                    status: 'processing',
-                    address: '123 Main St, Apt 4B, New York, NY 10001',
-                    items: [
-                        { product: 'Premium Wireless Headphones', price: 199.99, quantity: 1 }
-                    ],
-                    subtotal: 199.99,
-                    shipping: 0,
-                    tax: 16.00
-                },
-                {
-                    id: 'ORD-1002',
-                    customer: 'Jane Smith',
-                    email: 'jane@example.com',
-                    phone: '(555) 987-6543',
-                    date: '2023-06-10',
-                    amount: 349.98,
-                    status: 'shipped',
-                    address: '456 Oak Ave, Boston, MA 02108',
-                    items: [
-                        { product: 'Smart Watch Pro', price: 249.99, quantity: 1 },
-                        { product: 'Wireless Charger', price: 39.99, quantity: 2 }
-                    ],
-                    subtotal: 329.97,
-                    shipping: 9.99,
-                    tax: 27.20
-                }
-            ];
-
-            // Load orders into table
-            function loadOrders(filterStatus = '', dateFrom = '', dateTo = '') {
-                ordersTable.innerHTML = '';
-
-                let filteredOrders = orders;
-
-                if (filterStatus) {
-                    filteredOrders = filteredOrders.filter(order => order.status === filterStatus);
-                }
-
-                if (dateFrom) {
-                    filteredOrders = filteredOrders.filter(order => order.date >= dateFrom);
-                }
-
-                if (dateTo) {
-                    filteredOrders = filteredOrders.filter(order => order.date <= dateTo);
-                }
-
-                filteredOrders.forEach(order => {
-                    const row = ordersTable.insertRow();
-                    row.innerHTML = `
-                        <td>${order.id}</td>
-                        <td>${order.customer}</td>
-                        <td>${order.date}</td>
-                        <td>$${order.amount.toFixed(2)}</td>
-                        <td>
-                            <span class="badge ${getStatusBadgeClass(order.status)}">
-                                ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary view-btn" data-id="${order.id}">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success ship-btn" data-id="${order.id}">
-                                <i class="bi bi-truck"></i>
-                            </button>
-                        </td>
-                    `;
-                });
-
-                // Add event listeners
-                document.querySelectorAll('.view-btn').forEach(btn => {
-                    btn.addEventListener('click', viewOrderDetails);
-                });
-
-                document.querySelectorAll('.ship-btn').forEach(btn => {
-                    btn.addEventListener('click', shipOrder);
-                });
-            }
-
-            // View order details
-            function viewOrderDetails(e) {
-                const orderId = e.currentTarget.getAttribute('data-id');
-                const order = orders.find(o => o.id === orderId);
-
-                if (order) {
+            const orderModalEl = document.getElementById('orderModal');
+            
+            // Load order details when modal opens
+            orderModalEl.addEventListener('show.bs.modal', async function (event) {
+                const button = event.relatedTarget;
+                const orderId = button.getAttribute('data-id');
+                
+                try {
+                    const response = await fetch(`/admin/orders/${orderId}/details`);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
+                    const order = await response.json();
+                    
+                    // Fill order information
                     document.getElementById('orderIdTitle').textContent = order.id;
-                    document.getElementById('customerInfo').innerHTML = `
-                        ${order.customer}<br>
-                        ${order.email}<br>
-                        ${order.phone}
-                    `;
-                    document.getElementById('shippingAddress').textContent = order.address;
+                    document.getElementById('orderDate').textContent = new Date(order.created_at).toLocaleString();
+                    document.getElementById('paymentMethod').textContent = order.payment_method;
+                    document.getElementById('shippingAddress').textContent = order.shipping_address;
 
-                    // Load order items
+                    // Set status badge
+                    const statusBadge = document.getElementById('orderStatusBadge');
+                    statusBadge.innerHTML = `
+                        <span class="badge ${getStatusBadgeClass(order.status)}">
+                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                    `;
+
+                    // Set current status in select
+                    document.getElementById('orderStatusSelect').value = order.status;
+                    document.getElementById('updateStatusBtn').setAttribute('data-id', order.id);
+
+                    // Load order items (assuming items are included in the response)
                     const itemsTable = document.getElementById('orderItemsTable').getElementsByTagName('tbody')[0];
                     itemsTable.innerHTML = '';
 
-                    order.items.forEach(item => {
-                        const row = itemsTable.insertRow();
-                        row.innerHTML = `
-                            <td>${item.product}</td>
-                            <td>$${item.price.toFixed(2)}</td>
-                            <td>${item.quantity}</td>
-                            <td>$${(item.price * item.quantity).toFixed(2)}</td>
-                        `;
-                    });
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            const row = itemsTable.insertRow();
+                            row.innerHTML = `
+                                <td>${item.product_name || 'Product'}</td>
+                                <td>$${item.price ? item.price.toFixed(2) : '0.00'}</td>
+                                <td>${item.quantity || 1}</td>
+                                <td>$${item.price && item.quantity ? (item.price * item.quantity).toFixed(2) : '0.00'}</td>
+                            `;
+                        });
+                    }
 
                     // Set order totals
-                    document.getElementById('orderSubtotal').textContent = `$${order.subtotal.toFixed(2)}`;
-                    document.getElementById('orderShipping').textContent = `$${order.shipping.toFixed(2)}`;
-                    document.getElementById('orderTax').textContent = `$${order.tax.toFixed(2)}`;
-                    document.getElementById('orderTotal').textContent = `$${order.amount.toFixed(2)}`;
+                    document.getElementById('orderSubtotal').textContent = `$${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}`;
+                    document.getElementById('orderShipping').textContent = '$0.00'; // Adjust if you have shipping data
+                    document.getElementById('orderTax').textContent = '$0.00'; // Adjust if you have tax data
+                    document.getElementById('orderTotal').textContent = `$${order.total_amount ? order.total_amount.toFixed(2) : '0.00'}`;
 
-                    // Set current status
-                    document.getElementById('orderStatus').value = order.status;
-
-                    // Store current order ID for status update
-                    document.getElementById('updateStatusBtn').setAttribute('data-id', order.id);
-
-                    orderModal.show();
+                } catch (error) {
+                    console.error('Error loading order details:', error);
+                    alert('Failed to load order details');
                 }
-            }
-
-            // Ship order (quick action)
-            function shipOrder(e) {
-                const orderId = e.currentTarget.getAttribute('data-id');
-                const orderIndex = orders.findIndex(o => o.id === orderId);
-
-                if (orderIndex !== -1 && orders[orderIndex].status !== 'shipped') {
-                    if (confirm(`Mark order ${orderId} as shipped?`)) {
-                        orders[orderIndex].status = 'shipped';
-                        loadOrders(
-                            document.getElementById('statusFilter').value,
-                            document.getElementById('dateFrom').value,
-                            document.getElementById('dateTo').value
-                        );
-                    }
-                }
-            }
+            });
 
             // Update order status
-            document.getElementById('updateStatusBtn').addEventListener('click', function () {
+            document.getElementById('updateStatusBtn').addEventListener('click', async function () {
                 const orderId = this.getAttribute('data-id');
-                const newStatus = document.getElementById('orderStatus').value;
-                const orderIndex = orders.findIndex(o => o.id === orderId);
-
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = newStatus;
+                const newStatus = document.getElementById('orderStatusSelect').value;
+                
+                try {
+                    const response = await fetch(`/admin/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    
                     orderModal.hide();
-                    loadOrders(
-                        document.getElementById('statusFilter').value,
-                        document.getElementById('dateFrom').value,
-                        document.getElementById('dateTo').value
-                    );
+                    window.location.reload();
+                } catch (error) {
+                    console.error('Error updating order status:', error);
+                    alert('Failed to update order status');
                 }
             });
 
             // Filter orders
             document.getElementById('filterBtn').addEventListener('click', function () {
-                loadOrders(
-                    document.getElementById('statusFilter').value,
-                    document.getElementById('dateFrom').value,
-                    document.getElementById('dateTo').value
-                );
+                const status = document.getElementById('statusFilter').value;
+                const from = document.getElementById('dateFrom').value;
+                const to = document.getElementById('dateTo').value;
+                
+                let url = '/admin/orders?';
+                if (status) url += `status=${status}&`;
+                if (from) url += `from=${from}&`;
+                if (to) url += `to=${to}`;
+                
+                window.location.href = url;
             });
 
             // Print order
@@ -392,15 +335,10 @@
                     case 'processing': return 'bg-info';
                     case 'shipped': return 'bg-primary';
                     case 'delivered': return 'bg-success';
-                    case 'cancelled': return 'bg-danger';
                     default: return 'bg-secondary';
                 }
             }
-
-            // Initial load
-            loadOrders();
         });
     </script>
 </body>
-
 </html>
