@@ -16,6 +16,63 @@ exports.apiGetRelatedReviews = async (req, res) => {
     res.json(reviews);
 }
 
+exports.addProduct = async (req, res, next) => {
+    try {
+        const { name, description, price, discount_rate, stock_quantity, image, category, rating, reviews } = req.body;
+        const newProduct = await Product.addProduct({ name, description, price, discount_rate, stock_quantity, image, category, rating, reviews });
+        req.flash('success_msg', 'Product Added Successfully');
+        res.redirect('/products');
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+exports.updateProduct = async (req, res, next) => {
+    try {
+        const productId = req.params.productId;
+        const { name, description, price, discount_rate, stock_quantity, image, category, rating, reviews } = req.body;
+
+        await Product.updateProduct({ productId, name, description, price, discount_rate, stock_quantity, image, category, rating, reviews });
+
+        res.status(200).json({ message: 'Product Updated Successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+exports.getProductById = async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        const product = await Product.getProductDetails(productId);
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        res.status(200).json(product);
+    } catch (error) {
+        next(error); 
+    }
+};
+
+
+
+exports.deleteProduct = async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+        await Product.deleteProduct(productId);
+        req.flash('success_msg', 'Product Deleted Successfully');
+        res.redirect('/products');
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
 // For rendering view
 exports.renderProducts = (req, res, next) => {
     try {

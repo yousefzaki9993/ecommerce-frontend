@@ -12,7 +12,7 @@ class Product {
         const [products] = await pool.query('SELECT * FROM products where category=? and product_id!=?', [category[0].category, id]);
         return products;
     }
-
+    
     static async getRelatedReviews(id) {
         const [reviews] = await pool.query('SELECT * FROM reviews where product_id=?', id);
         return reviews;
@@ -45,6 +45,32 @@ class Product {
         connection.release();
 
     }
+
+
+    static async addProduct(productData) {
+        const { name, description, price, discount_rate, stock_quantity, image, category, rating, reviews } = productData;
+        const query = 'INSERT INTO products (name, description, price, discount_rate, stock_quantity, image, category, rating, reviews) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        await pool.query(query, [name, description, price, discount_rate, stock_quantity, image, category, rating, reviews]);
+    }
+
+    static async updateProduct(productData) {
+        const { name, description, price, discount_rate, stock_quantity, image, category, rating, reviews, productId } = productData;
+    
+        const query = `
+            UPDATE products 
+            SET name = ?, description = ?, price = ?, discount_rate = ?, stock_quantity = ?, image = ?, category = ?, rating = ?, reviews = ? 
+            WHERE product_id = ?
+        `;
+        
+        await pool.query(query, [name, description, price, discount_rate, stock_quantity, image, category, rating, reviews, productId]);
+    }
+    
+
+    static async deleteProduct(productId) {
+        const query = 'DELETE FROM products WHERE product_id = ?';
+        await pool.query(query, [productId]);
+    }
+
 }
 
 module.exports = Product;
