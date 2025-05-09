@@ -75,3 +75,11 @@ INSERT INTO promo_codes (code, type, value, expires_at, is_active) VALUES
 ('FLAT50', 'fixed', 50.00, NULL, 1),
 ('EXPIRED20', 'percent', 20.00, '2023-01-01 00:00:00', 1),
 ('DISABLED15', 'percent', 15.00, NULL, 0);
+
+
+// pass eslam123
+INSERT INTO admins (email, password)
+VALUES (
+  'eslam@gmail.com',
+  '$2a$12$Gbw0G/vJemgVxpKpXadieuKPWb3rebJXn/sDiiTHnv3t6j6DSDjr.'
+);
