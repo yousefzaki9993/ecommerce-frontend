@@ -9,8 +9,11 @@
     <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-    <%- include('./partial/nav.ejs')%>
-
+    <% if (session.userData ) { %>
+        <%- include('./partial/nav_logged.ejs')%>
+    <% } else { %>
+        <%- include('./partial/nav.ejs')%>
+    <% } %>
     <section class="shopping-cart py-5">
         <div class="container">
             <div class="row">
