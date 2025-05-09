@@ -80,3 +80,23 @@ CREATE TABLE reviews (
     FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
+
+CREATE TABLE promo_codes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    type ENUM('percent', 'fixed') NOT NULL,
+    value DECIMAL(10,2) NOT NULL,
+    expires_at DATETIME,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE promo_codes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    type ENUM('percent', 'fixed') NOT NULL,
+    value DECIMAL(10,2) NOT NULL,
+    expires_at DATETIME,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+

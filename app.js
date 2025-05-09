@@ -11,6 +11,7 @@ const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const adminRoutes = require('./routes/AdminRoutes');
+const promoRoutes = require('./routes/promoRoutes')
 const app = express();
 
 // register view engine
@@ -60,6 +61,7 @@ app.use('/user', userRoutes);
 app.use('/orders', orderRoutes);
 app.use('/cart', cartRoutes);
 app.use('/admin', adminRoutes);
+app.use('/promo', promoRoutes);
 
 app.get('/', async (req, res, next) => {
     try {
