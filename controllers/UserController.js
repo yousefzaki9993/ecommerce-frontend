@@ -2,6 +2,7 @@ const User = require('../models/User');
 require('express-session');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const Order = require('../models/Order');
 
 //APIs
 exports.apiGetUsers = async (req, res) => {
@@ -134,6 +135,51 @@ exports.handleLogout = async (req, res, next) => {
         }
         res.redirect('/');
     });
+};
+
+
+exports.getMyOrdersPage = async (req, res) => {
+    try {
+        if (!req.session.userData) {
+            return res.redirect('/user/login');
+        }
+        
+        const filters = {
+            status: req.query.status || '',
+            from: req.query.from || '',
+            to: req.query.to || ''
+        };
+        
+        const orders = await Order.getUserOrders(req.session.userData.user.user_id, filters);
+        
+        res.render('orders', {
+            title: 'My Orders',
+            user: req.session.userData.user,
+            orders: orders,
+            filters: filters,
+            helpers: {
+                formatDate: function(date) {
+                    return new Date(date).toLocaleDateString();
+                },
+                getStatusClass: function(status) {
+                    const statusClasses = {
+                        'pending': 'warning',
+                        'processing': 'info',
+                        'shipped': 'primary',
+                        'delivered': 'success',
+                        'cancelled': 'danger'
+                    };
+                    return statusClasses[status.toLowerCase()] || 'secondary';
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error in getMyOrdersPage:', error);
+        res.status(500).render('error', {
+            message: 'Failed to load your orders',
+            error: error
+        });
+    }
 };
 
 exports.handleUpdateProfile = async (req, res, next) => {

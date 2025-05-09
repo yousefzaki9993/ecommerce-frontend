@@ -11,5 +11,6 @@ userRoutes.get('/dashboard', UserController.renderLogin);
 userRoutes.get('/logout', UserController.handleLogout);
 userRoutes.get('/profile', UserController.renderProfile);
 userRoutes.post('/profile', UserController.handleUpdateProfile);
+userRoutes.get('/orders', UserController.getMyOrdersPage);
 
 module.exports = userRoutes;

@@ -49,6 +49,48 @@ class Order {
   }
 
 
+  
+static async getUserOrders(userId, filters = {}) {
+  try {
+      let query = `
+          SELECT 
+              o.order_id,
+              o.total_amount,
+              o.status,
+              o.shipping_address,
+              o.payment_method,
+              o.created_at
+          FROM orders o
+          WHERE o.user_id = ?
+      `;
+      
+      const params = [userId];
+      
+      if (filters.status) {
+          query += ' AND o.status = ?';
+          params.push(filters.status);
+      }
+      
+      if (filters.from) {
+          query += ' AND DATE(o.created_at) >= ?';
+          params.push(filters.from);
+      }
+      
+      if (filters.to) {
+          query += ' AND DATE(o.created_at) <= ?';
+          params.push(filters.to);
+      }
+      
+      query += ' ORDER BY o.created_at DESC';
+      
+      const [orders] = await db.execute(query, params);
+      return orders;
+  } catch (error) {
+      console.error('Error fetching user orders:', error);
+      throw error;
+  }
+}
+
 
 
   // Get order by ID with full details
