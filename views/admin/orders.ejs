@@ -15,23 +15,19 @@
             background-color: #212529;
             color: white;
         }
-
         .admin-content {
             margin-left: 250px;
             padding: 20px;
         }
-
         .order-status {
             width: 120px;
         }
-
         @media (max-width: 991px) {
             .admin-sidebar {
                 width: 100%;
                 height: auto;
                 position: relative;
             }
-
             .admin-content {
                 margin-left: 0;
             }
@@ -45,17 +41,17 @@
         <hr>
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/products">
+                <a class="nav-link text-white-50" href="products">
                     <i class="bi bi-box-seam"></i> Products
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active text-white" href="/orders">
+                <a class="nav-link active text-white" href="orders">
                     <i class="bi bi-receipt"></i> Orders
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link text-white-50" href="/inventory">
+                <a class="nav-link text-white-50" href="inventory">
                     <i class="bi bi-clipboard-data"></i> Inventory
                 </a>
             </li>
@@ -107,10 +103,11 @@
                                 <th>Date</th>
                                 <th>Amount</th>
                                 <th class="order-status">Status</th>
+                                <th>Payment</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="ordersTableBody">
                             <!-- Orders will be loaded here -->
                         </tbody>
                     </table>
@@ -123,7 +120,7 @@
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Order Details - <span id="orderIdTitle"></span></h5>
+                        <h5 class="modal-title">Order Details - #<span id="orderIdTitle"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -203,181 +200,155 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const orderModal = new bootstrap.Modal('#orderModal');
-            const ordersTable = document.getElementById('ordersTable').getElementsByTagName('tbody')[0];
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            let currentOrderId = null;
 
-            // Sample order data
-            let orders = [
-                {
-                    id: 'ORD-1001',
-                    customer: 'John Doe',
-                    email: 'john@example.com',
-                    phone: '(555) 123-4567',
-                    date: '2023-06-15',
-                    amount: 199.99,
-                    status: 'processing',
-                    address: '123 Main St, Apt 4B, New York, NY 10001',
-                    items: [
-                        { product: 'Premium Wireless Headphones', price: 199.99, quantity: 1 }
-                    ],
-                    subtotal: 199.99,
-                    shipping: 0,
-                    tax: 16.00
-                },
-                {
-                    id: 'ORD-1002',
-                    customer: 'Jane Smith',
-                    email: 'jane@example.com',
-                    phone: '(555) 987-6543',
-                    date: '2023-06-10',
-                    amount: 349.98,
-                    status: 'shipped',
-                    address: '456 Oak Ave, Boston, MA 02108',
-                    items: [
-                        { product: 'Smart Watch Pro', price: 249.99, quantity: 1 },
-                        { product: 'Wireless Charger', price: 39.99, quantity: 2 }
-                    ],
-                    subtotal: 329.97,
-                    shipping: 9.99,
-                    tax: 27.20
+            // Load orders from API
+            async function loadOrders() {
+                try {
+                    const response = await fetch('http://localhost:3000/orders/api/all');
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch orders');
+                    }
+                    const orders = await response.json();
+                    renderOrders(orders);
+                } catch (error) {
+                    console.error('Error loading orders:', error);
+                    alert('Failed to load orders');
                 }
-            ];
+            }
 
-            // Load orders into table
-            function loadOrders(filterStatus = '', dateFrom = '', dateTo = '') {
-                ordersTable.innerHTML = '';
-
-                let filteredOrders = orders;
-
-                if (filterStatus) {
-                    filteredOrders = filteredOrders.filter(order => order.status === filterStatus);
-                }
-
-                if (dateFrom) {
-                    filteredOrders = filteredOrders.filter(order => order.date >= dateFrom);
-                }
-
-                if (dateTo) {
-                    filteredOrders = filteredOrders.filter(order => order.date <= dateTo);
-                }
-
-                filteredOrders.forEach(order => {
-                    const row = ordersTable.insertRow();
+            // Render orders in table
+            function renderOrders(orders) {
+                ordersTableBody.innerHTML = '';
+                
+                orders.forEach(order => {
+                    const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${order.id}</td>
-                        <td>${order.customer}</td>
-                        <td>${order.date}</td>
-                        <td>$${order.amount.toFixed(2)}</td>
+                        <td>#${order.order_id}</td>
+                        <td>${order.email}</td>
+                        <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                        <td>$${parseFloat(order.total_amount).toFixed(2)}</td>
                         <td>
                             <span class="badge ${getStatusBadgeClass(order.status)}">
                                 ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                             </span>
                         </td>
+                        <td>${order.payment_method}</td>
                         <td>
-                            <button class="btn btn-sm btn-outline-primary view-btn" data-id="${order.id}">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-success ship-btn" data-id="${order.id}">
-                                <i class="bi bi-truck"></i>
+                            <button class="btn btn-sm btn-outline-primary view-btn" 
+                                    data-id="${order.order_id}">
+                                <i class="bi bi-eye"></i> View
                             </button>
                         </td>
                     `;
+                    ordersTableBody.appendChild(row);
                 });
 
-                // Add event listeners
+                // Add event listeners to view buttons
                 document.querySelectorAll('.view-btn').forEach(btn => {
                     btn.addEventListener('click', viewOrderDetails);
-                });
-
-                document.querySelectorAll('.ship-btn').forEach(btn => {
-                    btn.addEventListener('click', shipOrder);
                 });
             }
 
             // View order details
-            function viewOrderDetails(e) {
+            async function viewOrderDetails(e) {
                 const orderId = e.currentTarget.getAttribute('data-id');
-                const order = orders.find(o => o.id === orderId);
-
-                if (order) {
-                    document.getElementById('orderIdTitle').textContent = order.id;
+                currentOrderId = orderId;
+                
+                try {
+                    const response = await fetch(`http://localhost:3000/orders/api/${orderId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch order details');
+                    }
+                    const order = await response.json();
+                    
+                    // Fill modal with order details
+                    document.getElementById('orderIdTitle').textContent = order.order_id;
                     document.getElementById('customerInfo').innerHTML = `
-                        ${order.customer}<br>
                         ${order.email}<br>
-                        ${order.phone}
+                        ${order.shipping_address.split(',')[0]}<br>
+                        ${order.shipping_address.split(',')[1]}
                     `;
-                    document.getElementById('shippingAddress').textContent = order.address;
+                    document.getElementById('shippingAddress').textContent = order.shipping_address;
 
-                    // Load order items
-                    const itemsTable = document.getElementById('orderItemsTable').getElementsByTagName('tbody')[0];
-                    itemsTable.innerHTML = '';
-
-                    order.items.forEach(item => {
-                        const row = itemsTable.insertRow();
-                        row.innerHTML = `
-                            <td>${item.product}</td>
-                            <td>$${item.price.toFixed(2)}</td>
-                            <td>${item.quantity}</td>
-                            <td>$${(item.price * item.quantity).toFixed(2)}</td>
-                        `;
-                    });
-
-                    // Set order totals
-                    document.getElementById('orderSubtotal').textContent = `$${order.subtotal.toFixed(2)}`;
-                    document.getElementById('orderShipping').textContent = `$${order.shipping.toFixed(2)}`;
-                    document.getElementById('orderTax').textContent = `$${order.tax.toFixed(2)}`;
-                    document.getElementById('orderTotal').textContent = `$${order.amount.toFixed(2)}`;
-
-                    // Set current status
+                    // Set current status in select
                     document.getElementById('orderStatus').value = order.status;
 
-                    // Store current order ID for status update
-                    document.getElementById('updateStatusBtn').setAttribute('data-id', order.id);
+                    // For now, we'll use sample items since they're not in your API response
+                    const itemsTable = document.getElementById('orderItemsTable').getElementsByTagName('tbody')[0];
+                    itemsTable.innerHTML = `
+                        <tr>
+                            <td>Sample Product</td>
+                            <td>$${parseFloat(order.total_amount).toFixed(2)}</td>
+                            <td>1</td>
+                            <td>$${parseFloat(order.total_amount).toFixed(2)}</td>
+                        </tr>
+                    `;
+
+                    // Set order totals
+                    document.getElementById('orderSubtotal').textContent = `$${parseFloat(order.total_amount).toFixed(2)}`;
+                    document.getElementById('orderShipping').textContent = '$0.00';
+                    document.getElementById('orderTax').textContent = '$0.00';
+                    document.getElementById('orderTotal').textContent = `$${parseFloat(order.total_amount).toFixed(2)}`;
 
                     orderModal.show();
-                }
-            }
-
-            // Ship order (quick action)
-            function shipOrder(e) {
-                const orderId = e.currentTarget.getAttribute('data-id');
-                const orderIndex = orders.findIndex(o => o.id === orderId);
-
-                if (orderIndex !== -1 && orders[orderIndex].status !== 'shipped') {
-                    if (confirm(`Mark order ${orderId} as shipped?`)) {
-                        orders[orderIndex].status = 'shipped';
-                        loadOrders(
-                            document.getElementById('statusFilter').value,
-                            document.getElementById('dateFrom').value,
-                            document.getElementById('dateTo').value
-                        );
-                    }
+                } catch (error) {
+                    console.error('Error loading order details:', error);
+                    alert('Failed to load order details');
                 }
             }
 
             // Update order status
-            document.getElementById('updateStatusBtn').addEventListener('click', function () {
-                const orderId = this.getAttribute('data-id');
+            document.getElementById('updateStatusBtn').addEventListener('click', async function () {
+                if (!currentOrderId) return;
+                
                 const newStatus = document.getElementById('orderStatus').value;
-                const orderIndex = orders.findIndex(o => o.id === orderId);
-
-                if (orderIndex !== -1) {
-                    orders[orderIndex].status = newStatus;
+                
+                try {
+                    const response = await fetch(`http://localhost:3000/orders/api/${currentOrderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to update order status');
+                    }
+                    
                     orderModal.hide();
-                    loadOrders(
-                        document.getElementById('statusFilter').value,
-                        document.getElementById('dateFrom').value,
-                        document.getElementById('dateTo').value
-                    );
+                    loadOrders(); // Refresh the orders list
+                    alert('Order status updated successfully');
+                } catch (error) {
+                    console.error('Error updating order status:', error);
+                    alert('Failed to update order status');
                 }
             });
 
             // Filter orders
-            document.getElementById('filterBtn').addEventListener('click', function () {
-                loadOrders(
-                    document.getElementById('statusFilter').value,
-                    document.getElementById('dateFrom').value,
-                    document.getElementById('dateTo').value
-                );
+            document.getElementById('filterBtn').addEventListener('click', async function () {
+                const status = document.getElementById('statusFilter').value;
+                const from = document.getElementById('dateFrom').value;
+                const to = document.getElementById('dateTo').value;
+                
+                try {
+                    let url = 'http://localhost:3000/orders/api/all?';
+                    if (status) url += `status=${status}&`;
+                    if (from) url += `from=${from}&`;
+                    if (to) url += `to=${to}`;
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch filtered orders');
+                    }
+                    const orders = await response.json();
+                    renderOrders(orders);
+                } catch (error) {
+                    console.error('Error filtering orders:', error);
+                    alert('Failed to filter orders');
+                }
             });
 
             // Print order
@@ -402,5 +373,4 @@
         });
     </script>
 </body>
-
 </html>

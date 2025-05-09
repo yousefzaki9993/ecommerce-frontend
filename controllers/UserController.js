@@ -2,12 +2,13 @@ const User = require('../models/User');
 require('express-session');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const Order = require('../models/Order');
 
-//APIs
+// APIs
 exports.apiGetUsers = async (req, res) => {
     const users = await User.getAllUsers();
     res.json(users);
-}
+};
 
 // For rendering view
 exports.renderLogin = (req, res, next) => {
@@ -60,8 +61,8 @@ exports.handleLogin = async (req, res, next) => {
             return;
         }
 
-        const token = User.generateToken(user.id);
-
+        const token = User.generateToken(user.user_id);
+        
         const userResponse = {
             user_id: user.user_id,
             first_name: user.first_name,
@@ -70,14 +71,12 @@ exports.handleLogin = async (req, res, next) => {
             phone: user.phone,
         };
 
-        let = userData = {
+        req.session.userData = {
             token,
             user: userResponse
         };
-
-        req.session.userData = userData;
         req.session.cartId = null;
-        
+            
         req.flash('success_msg', 'Login successful');
         res.redirect('/user/dashboard');
 
@@ -99,8 +98,9 @@ exports.handleRegister = async (req, res, next) => {
         if (user) {
             req.flash('error_msg', 'Email exists');
             res.redirect('/user/register');
-            return
+            return;
         }
+
         const id = await User.createNewUser({ email, password, first_name, last_name });
         const token = User.generateToken(id);
 
@@ -110,13 +110,11 @@ exports.handleRegister = async (req, res, next) => {
             last_name: last_name,
             email: email,
         };
-        
-        userData = {
+
+        req.session.userData = {
             token,
             user: userResponse
         };
-
-        req.session.userData = userData;
         req.session.cartId = null;
 
         req.flash('success_msg', 'Registration successful');
@@ -136,6 +134,97 @@ exports.handleLogout = async (req, res, next) => {
     });
 };
 
+
+exports.getDashboardPage = async (req, res) => {
+    try {
+        if (!req.session.userData) {
+            return res.redirect('/user/login');
+        }
+
+        const userId = req.session.userData.user.user_id;
+
+        const orders = await Order.getUserOrders(userId, {});
+
+        const totalOrders = orders.length;
+        const completedOrders = orders.filter(order => order.status === 'delivered').length;
+        const pendingOrders = orders.filter(order => order.status === 'pending').length;
+
+        res.render('dashboard', {
+            title: 'Dashboard',
+            userData: req.session.userData.user,
+            orders: orders,
+            totalOrders: totalOrders,
+            completedOrders: completedOrders,
+            pendingOrders: pendingOrders,
+            getStatusClass: function(status) {
+                const statusClasses = {
+                    'pending': 'warning',
+                    'processing': 'info',
+                    'shipped': 'primary',
+                    'delivered': 'success',
+                    'cancelled': 'danger'
+                };
+                return statusClasses[status.toLowerCase()] || 'secondary';
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+
+
+exports.getMyOrdersPage = async (req, res) => {
+    try {
+        if (!req.session.userData) {
+            return res.redirect('/user/login');
+        }
+
+        const filters = {
+            status: req.query.status || '',
+            from: req.query.from || '',
+            to: req.query.to || ''
+        };
+
+        const orders = await Order.getUserOrders(req.session.userData.user.user_id, filters);
+
+        orders.forEach(order => {
+            order.total_amount = parseFloat(order.total_amount);
+        });
+
+        res.render('orders', {
+            title: 'My Orders',
+            user: req.session.userData.user,
+            orders: orders,
+            filters: filters,
+            helpers: {
+                formatDate: function(date) {
+                    return new Date(date).toLocaleDateString();
+                },
+                getStatusClass: function(status) {
+                    const statusClasses = {
+                        'pending': 'warning',
+                        'processing': 'info',
+                        'shipped': 'primary',
+                        'delivered': 'success',
+                        'cancelled': 'danger'
+                    };
+                    return statusClasses[status.toLowerCase()] || 'secondary';
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error in getMyOrdersPage:', error);
+        res.status(500).render('error', {
+            message: 'Failed to load your orders',
+            error: error
+        });
+    }
+};
+
+
 exports.handleUpdateProfile = async (req, res, next) => {
     try {
         const { email, first_name, last_name, phone, bio, profileImage } = req.body;
@@ -144,15 +233,16 @@ exports.handleUpdateProfile = async (req, res, next) => {
         if (email != req.session.userData.user.email && user) {
             req.flash('error_msg', 'Email exists');
             res.redirect('/user/profile');
-            return
+            return;
         }
         if (first_name == '' || last_name == '') {
             req.flash('error_msg', 'Name cannot be empty!');
             res.redirect('/user/profile');
-            return
+            return;
         }
+
         const id = req.session.userData.user.user_id;
-        await User.updateUser({ email, first_name, last_name, phone: phone || null, bio: bio || null, profileImage}, id);
+        await User.updateUser({ email, first_name, last_name, phone: phone || null, bio: bio || null, profileImage }, id);
 
         const userResponse = {
             user_id: id,
@@ -161,7 +251,7 @@ exports.handleUpdateProfile = async (req, res, next) => {
             email: email,
             phone: phone,
         };
-        
+
         req.session.userData.user = userResponse;
 
         req.flash('success_msg', 'Update successful');

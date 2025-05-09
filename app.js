@@ -6,10 +6,12 @@ const MySQLStore = require('express-mysql-session')(session);
 const dbConfig = require('./config/db');
 const flash = require('connect-flash');
 
+const orderRoutes = require('./routes/orderRoutes');
 const productRoutes = require('./routes/productRoutes');
 const userRoutes = require('./routes/userRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const adminRoutes = require('./routes/AdminRoutes');
+const promoRoutes = require('./routes/promoRoutes')
 const app = express();
 
 // register view engine
@@ -61,9 +63,10 @@ app.use((req, res, next) => {
 // Routes
 app.use('/products', productRoutes);
 app.use('/user', userRoutes);
-//app.use('/orders', orderRoutes);
+app.use('/orders', orderRoutes);
 app.use('/cart', cartRoutes);
 app.use('/admin', adminRoutes);
+app.use('/promo', promoRoutes);
 
 const orderRoutes = require('./routes/orderRoutes');
 app.use('/orders', orderRoutes); // Accessible at /orders/checkout

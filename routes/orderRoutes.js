@@ -1,9 +1,23 @@
 const pool = require('../config/db'); 
 const express = require('express');
+const orderRoutes = express.Router();
+
+const AdminController = require('../controllers/adminController');
 const router = express.Router();
 const Cart = require('../models/Cart');
 const CartItem = require('../models/CartItem');
 const CartController = require('../controllers/CartController');
+
+
+orderRoutes.get('/api/all', AdminController.getAllOrders);
+orderRoutes.get('/api/:id', AdminController.getOrderDetails);
+orderRoutes.put('/api/:id/status', AdminController.updateOrderStatus);
+orderRoutes.get('/', (req, res) => {
+    res.render('products');
+});
+
+
+
 
 router.get('/checkout', (req, res) => {
   
@@ -267,4 +281,5 @@ router.get('/order-success/:orderId', async (req, res) => {
     }
 });
 
+module.exports = orderRoutes;
 module.exports = router;
