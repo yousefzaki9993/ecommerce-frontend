@@ -68,3 +68,10 @@ INSERT INTO reviews (user_id, product_id, rating, title, comment) VALUES
 (3, 2, 3, 'Good but not perfect', 'Sound quality is excellent but they hurt my ears after long use.'),
 (4, 4, 5, 'Perfect pan', 'Nothing sticks to it and it heats evenly. Worth every penny!'),
 (5, 7, 4, 'Excellent fitness tracker', 'Tracks all my workouts accurately, but the app could be better.');
+
+-- Dummy values:
+INSERT INTO promo_codes (code, type, value, expires_at, is_active) VALUES
+('DISCOUNT10', 'percent', 10.00, '2025-12-31 23:59:59', 1),
+('FLAT50', 'fixed', 50.00, NULL, 1),
+('EXPIRED20', 'percent', 20.00, '2023-01-01 00:00:00', 1),
+('DISABLED15', 'percent', 15.00, NULL, 0);
