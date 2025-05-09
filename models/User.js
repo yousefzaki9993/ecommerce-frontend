@@ -50,6 +50,14 @@ class User {
             [email, first_name, last_name, bio, phone, profileImage, id]
         );
     }
+
+    static async updatePass({ newPass }, id) {
+        const hashedPassword = await bcrypt.hash(newPass, 10);
+        await pool.query(
+            'UPDATE users SET password=? WHERE user_id=?',
+            [hashedPassword, id]
+        );
+    }
 }
 
 module.exports = User;

@@ -15,7 +15,12 @@ function authenticateToken(req, res, next) {
 		req.user = decoded; // decoded contains user_id or whatever you encoded
 		next();
 	});
+
 }
+exports.isLoggedIn = (req, res, next) => {
+  if (req.session.userId) return next();
+  res.redirect('/login');
+};
 
 // Session-based Authentication Middleware
 function isAuthenticated(req, res, next) {

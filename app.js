@@ -2,8 +2,6 @@ require('dotenv').config();
 const session = require('express-session');
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const MySQLStore = require('express-mysql-session')(session);
-const dbConfig = require('./config/db');
 const flash = require('connect-flash');
 
 const orderRoutes = require('./routes/orderRoutes');
@@ -23,14 +21,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(session({/*
-    store: new MySQLStore({
-        host: dbConfig.host,
-        port: 3306,
-        user: dbConfig.user,
-        password: dbConfig.password,
-        database: dbConfig.database
-    }),*/
+app.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: false,
@@ -55,6 +46,11 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.use((req, res, next) => {
+  console.log(`Incoming ${req.method} request to ${req.path}`);
+  next();
+});
+
 // Routes
 app.use('/products', productRoutes);
 app.use('/user', userRoutes);
@@ -62,6 +58,8 @@ app.use('/orders', orderRoutes);
 app.use('/cart', cartRoutes);
 app.use('/admin', adminRoutes);
 app.use('/promo', promoRoutes);
+
+app.use('/orders', orderRoutes); // Accessible at /orders/checkout
 
 app.get('/', async (req, res, next) => {
     try {
@@ -88,4 +86,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-

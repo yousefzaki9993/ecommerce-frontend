@@ -22,6 +22,15 @@ exports.renderLogin = (req, res, next) => {
     }
 };
 
+exports.renderChangePass = async (req, res, next) => {
+    try {
+        const data = await User.getUserData(req.session.userData.user.user_id);
+        return res.render('update-pass', {data: data});
+    } catch (error) {
+        next(error);
+    }
+}
+
 exports.renderProfile = async (req, res, next) => {
     try {
         if (req.session.userData) {
@@ -256,6 +265,34 @@ exports.handleUpdateProfile = async (req, res, next) => {
 
         req.flash('success_msg', 'Update successful');
         res.redirect('/user/profile');
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+exports.handleChangePass = async (req, res, next) => {
+    try {
+        const { oldPass, newPass, confirmPass } = req.body;
+
+        if (newPass != confirmPass) {
+            req.flash('error_msg', 'New Password does not match!');
+            res.redirect('/user/updatepass');
+            return;
+        }
+        const user = await User.findByEmail(req.session.userData.user.email);
+        const isMatch = await bcrypt.compare(oldPass, user.password);
+        if (!isMatch) {
+            req.flash('error_msg', 'Wrong Old Password!');
+            res.redirect('/user/updatepass');
+            return;
+        }
+
+        const id = req.session.userData.user.user_id;
+        await User.updatePass({ newPass: newPass }, id);
+
+        req.flash('success_msg', 'Update successful');
+        res.redirect('/user/updatepass');
 
     } catch (err) {
         next(err);

@@ -1,5 +1,7 @@
 const PromoCode = require('../models/PromoCode');
 const Cart = require('../models/Cart');
+const pool = require('../config/db');
+let discount;
 
 exports.applyPromoCode = async (req, res) => {
     try {
@@ -17,7 +19,7 @@ exports.applyPromoCode = async (req, res) => {
         }
 
         let cartTotal = await Cart.getTotalPrice(cartId);
-        let discount = 0;
+            discount = 0;
 
         if (promo.type === 'percent') {
             discount = (promo.value / 100) * cartTotal;
