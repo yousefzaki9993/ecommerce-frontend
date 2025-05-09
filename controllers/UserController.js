@@ -135,6 +135,47 @@ exports.handleLogout = async (req, res, next) => {
 };
 
 
+exports.getDashboardPage = async (req, res) => {
+    try {
+        if (!req.session.userData) {
+            return res.redirect('/user/login');
+        }
+
+        const userId = req.session.userData.user.user_id;
+
+        const orders = await Order.getUserOrders(userId, {});
+
+        const totalOrders = orders.length;
+        const completedOrders = orders.filter(order => order.status === 'delivered').length;
+        const pendingOrders = orders.filter(order => order.status === 'pending').length;
+
+        res.render('dashboard', {
+            title: 'Dashboard',
+            userData: req.session.userData.user,
+            orders: orders,
+            totalOrders: totalOrders,
+            completedOrders: completedOrders,
+            pendingOrders: pendingOrders,
+            getStatusClass: function(status) {
+                const statusClasses = {
+                    'pending': 'warning',
+                    'processing': 'info',
+                    'shipped': 'primary',
+                    'delivered': 'success',
+                    'cancelled': 'danger'
+                };
+                return statusClasses[status.toLowerCase()] || 'secondary';
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+};
+
+
+
 exports.getMyOrdersPage = async (req, res) => {
     try {
         if (!req.session.userData) {

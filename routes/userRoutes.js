@@ -7,7 +7,7 @@ userRoutes.get('/login', UserController.renderLogin);
 userRoutes.post('/login', UserController.handleLogin);
 userRoutes.get('/register', UserController.renderRegister);
 userRoutes.post('/register', UserController.handleRegister);
-userRoutes.get('/dashboard', UserController.renderLogin);
+userRoutes.get('/dashboard', UserController.getDashboardPage);
 userRoutes.get('/logout', UserController.handleLogout);
 userRoutes.get('/profile', UserController.renderProfile);
 userRoutes.post('/profile', UserController.handleUpdateProfile);
