@@ -53,12 +53,20 @@ app.use(function (req, res, next) {
     next();
 });
 
+app.use((req, res, next) => {
+  console.log(`Incoming ${req.method} request to ${req.path}`);
+  next();
+});
+
 // Routes
 app.use('/products', productRoutes);
 app.use('/user', userRoutes);
 //app.use('/orders', orderRoutes);
 app.use('/cart', cartRoutes);
 app.use('/admin', adminRoutes);
+
+const orderRoutes = require('./routes/orderRoutes');
+app.use('/orders', orderRoutes); // Accessible at /orders/checkout
 
 app.get('/', async (req, res, next) => {
     try {
@@ -85,4 +93,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-

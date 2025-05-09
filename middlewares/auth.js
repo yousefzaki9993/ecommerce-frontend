@@ -11,6 +11,11 @@ function authenticateToken(req, res, next) {
 		req.user = decoded;
 		next();
 	});
+
 }
+exports.isLoggedIn = (req, res, next) => {
+  if (req.session.userId) return next();
+  res.redirect('/login');
+};
 
 module.exports = authenticateToken;

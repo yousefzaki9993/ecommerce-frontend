@@ -194,8 +194,7 @@ async function clearCart() {
 
 // Proceed to checkout
 function proceedToCheckout() {
-    // In a real app, you would validate cart and redirect
-    window.location.href = '/checkout';
+    window.location.href = '/cart/checkout';  // Must match the route exactly
 }
 
 // Continue shopping
