@@ -3,13 +3,13 @@ const router = express.Router();
 const db = require('../config/db'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const verifyAdmin = require('../middlewares/auth').verifyAdmin;
 
 const AdminController = require('../controllers/adminController');
 
-router.get('/inventory', AdminController.renderInventory);
-router.get('/orders', AdminController.renderOrders);
-router.get('/products', AdminController.renderProducts);
+router.get('/inventory', verifyAdmin ,AdminController.renderInventory);
+router.get('/orders', verifyAdmin, AdminController.renderOrders);
+router.get('/products', verifyAdmin , AdminController.renderProducts);
 
 
 
@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
         }
 
         // If login is successful
-        const token = jwt.sign({ admin_id: admin[0].admin_id }, 'your_jwt_secret_key', {
+        const token = jwt.sign({ admin_id: admin[0].admin_id ,role: 'admin'}, '2y7aga', {
             expiresIn: '1h'
         });
 

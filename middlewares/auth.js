@@ -28,26 +28,36 @@ function isAuthenticated(req, res, next) {
 
 
 
-exports.verifyAdmin = (req, res, next) => {
-	const authHeader = req.headers.authorization;
-  
-	if (!authHeader) return res.status(401).json({ message: 'No token provided' });
-  
-	const token = authHeader.split(' ')[1];
-  
-	try {
-	  const decoded = jwt.verify(token, 'your_jwt_secret');
-	  req.admin = decoded;
-	  next();
-	} catch (err) {
-	  return res.status(403).json({ message: 'Invalid token' });
-	}
-  };
+function verifyAdmin(req, res, next) {
+    const token = req.cookies.admin_token;
+    console.log("Token:", token);
 
+    if (!token) {
+        console.log("No token found, redirecting to login");
+        return res.redirect('/admin/login');
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);  
+        console.log("Decoded Token:", decoded);
+
+        if (decoded.role !== 'admin') {
+            console.log("Not an admin, redirecting to login");
+            return res.redirect('/admin/login');
+        }
+
+        req.admin = decoded;
+        next();
+    } catch (err) {
+        console.log("Error verifying token:", err);
+        return res.redirect('/admin/login');
+    }
+}
 
 
 
 module.exports = {
 	authenticateToken,
-	isAuthenticated
+	isAuthenticated,
+	verifyAdmin
 };
