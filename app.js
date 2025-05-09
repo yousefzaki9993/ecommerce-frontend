@@ -2,8 +2,6 @@ require('dotenv').config();
 const session = require('express-session');
 const express = require('express');
 const cookieParser = require('cookie-parser');
-const MySQLStore = require('express-mysql-session')(session);
-const dbConfig = require('./config/db');
 const flash = require('connect-flash');
 
 const orderRoutes = require('./routes/orderRoutes');
@@ -23,14 +21,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(session({/*
-    store: new MySQLStore({
-        host: dbConfig.host,
-        port: 3306,
-        user: dbConfig.user,
-        password: dbConfig.password,
-        database: dbConfig.database
-    }),*/
+app.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: false,

@@ -5,6 +5,8 @@ const UserController = require('../controllers/UserController');
 
 userRoutes.get('/api/all', UserController.apiGetUsers);
 userRoutes.get('/login', UserController.renderLogin);
+userRoutes.get('/updatepass', UserController.renderChangePass);
+userRoutes.post('/updatepass', UserController.handleChangePass);
 userRoutes.post('/login', UserController.handleLogin);
 userRoutes.get('/register', UserController.renderRegister);
 userRoutes.post('/register', UserController.handleRegister);

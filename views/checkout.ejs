@@ -12,8 +12,11 @@
 
 <body>
     <!-- Navigation (same as index.html) -->
-    <%- include('./partial/nav.ejs')%>
-
+    <% if (session.userData ) { %>
+        <%- include('./partial/nav_logged.ejs')%>
+    <% } else { %>
+        <%- include('./partial/nav.ejs')%>
+    <% } %>
     <!-- Checkout Section -->
     <section class="checkout py-5">
         <div class="container">
@@ -250,7 +253,7 @@
                                         <% items.forEach(item => { %>
                                         <div class="d-flex mb-3">
                                             <div class="order-item-img me-3">
-                                                <img src="<%= item.image || '/assets/default-product.jpg' %>" alt="<%= item.name %>" class="img-thumbnail" />
+                                                <img src="/assets/<%= item.image || '/assets/default-product.jpg' %>" alt="<%= item.name %>" class="img-thumbnail" style="width: 100px;"/>
                                             </div>
                                             <div class="order-item-details">
                                                 <h6 class="mb-1"><%= item.name %></h6>

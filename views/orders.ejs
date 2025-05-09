@@ -20,38 +20,16 @@
     </style>
 </head>
 <body>
-
+    <% if (session.userData ) { %>
+        <%- include('./partial/nav_logged.ejs')%>
+    <% } else { %>
+        <%- include('./partial/nav.ejs')%>
+    <% } %>
     <div class="container my-5">
         <div class="row">
             <div class="col-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">My Account</h5>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        <a href="/user/dashboard" class="list-group-item list-group-item-action">
-                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                        </a>
-                        <a href="/user/profile" class="list-group-item list-group-item-action">
-                            <i class="fas fa-user me-2"></i> Profile
-                        </a>
-                        <a href="orders" class="list-group-item list-group-item-action">
-                            <i class="fas fa-shopping-bag me-2"></i> Orders
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-map-marker-alt me-2"></i> Addresses
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-heart me-2"></i> Wishlist
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <i class="fas fa-lock me-2"></i> Change Password
-                        </a>
-                        <a href="/user/logout" class="list-group-item list-group-item-action text-danger" id="sidebarLogout">
-                            <i class="fas fa-sign-out-alt me-2"></i> Logout
-                        </a>
-                    </div>
-                </div>            </div>
+                <%- include('./partial/sidebar.ejs')%>
+            </div>
             
             <div class="col-md-9">
                 <div class="card">

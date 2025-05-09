@@ -20,9 +20,9 @@ exports.initializeCart = async (req, res, next) => {
                 } else {// first time, create a new record.
                     const cartid = await Cart.CreateCart();
                     console.log(cartid);
-                    req.session.cartId = cart;
+                    req.session.cartId = cartId;
 
-                    res.cookie('cartId', cart, { maxAge: 30 * 24 * 60 * 60 * 1000 });
+                    res.cookie('cartId', cartId, { maxAge: 30 * 24 * 60 * 60 * 1000 });
                 }
             }
         }//else, middleware mlosh lzma
