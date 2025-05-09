@@ -24,6 +24,7 @@ router.get('/checkout', (req, res) => {
     res.render('checkout', { 
         cartId: req.session.cartId,
         userId: req.session.userData?.user?.user_id 
+        
     });
 });
 

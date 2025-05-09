@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const Cart = require('../models/Cart');
 const CartItem = require('../models/CartItem');
 const { subscribe } = require('../routes/productRoutes');
+let discount = require('../models/PromoCode').discount;
 
 exports.getCart = async (req, res) => {
     try {
@@ -84,6 +85,30 @@ exports.updateCartItemQuantity = (req, res) => {
     }
 };
 
+exports.applyDiscount = async (req, res) => {
+    try {
+        const { promoCode } = req.body;
+        const cartId = req.session.cartId;
+        
+        // Validate promo code and calculate discount
+        const discount = await validatePromoCode(promoCode, cartId);
+        
+        // Store in session
+        req.session.discount = discount;
+        await req.session.save();
+        
+        res.json({ 
+            success: true,
+            discount: discount
+        });
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            error: error.message
+        });
+    }
+};
+
 exports.renderCheckout = async (req, res) => {
     try {
         const cartId = req.session.cartId;
@@ -98,15 +123,17 @@ exports.renderCheckout = async (req, res) => {
 
         const subtotal = await Cart.getTotalPrice(cartId);
         const taxRate = 0.08;
-        const tax = Number(subtotal) * taxRate;
-        const total = Number(subtotal) + tax;
+        const discount = req.session.discount || 0; // Get from session
+        const tax = (subtotal - discount) * taxRate;
+        const total = subtotal - discount + tax;
 
         res.render('checkout', {
             items,
             subtotal: Number(subtotal),
             tax: Number(tax),
             total: Number(total),
-            shipping: 0.00
+            shipping: 0.00,
+            discount: Number(discount) // Pass to view
         });
     } catch (error) {
         console.error(error);
@@ -117,9 +144,10 @@ exports.renderCheckout = async (req, res) => {
 exports.placeOrder = async (req, res) => {
     const conn = await pool.getConnection();
     try {
-        // Get data from session instead of body
+        // Get data from session
         const cartId = req.session.cartId;
         const userId = req.session.userId || req.session.userData?.user?.user_id;
+        const discount = req.session.discount || 0; // Get discount from session
 
         if (!cartId || !userId) {
             throw new Error("Missing cart or user session");
@@ -127,22 +155,25 @@ exports.placeOrder = async (req, res) => {
 
         await conn.beginTransaction();
 
-        // 1. Calculate total
-        const [[{total}]] = await conn.query(`
-            SELECT SUM(p.price * ci.quantity) AS total
+        // Calculate amounts
+        const [[{subtotal}]] = await conn.query(`
+            SELECT SUM(p.price * ci.quantity) AS subtotal
             FROM cart_items ci
             JOIN products p ON ci.product_id = p.product_id
             WHERE ci.cart_id = ?
         `, [cartId]);
 
-        // 2. Create order
+        const tax = (subtotal - discount) * 0.08;
+        const total = subtotal - discount + tax;
+        console.log(total, discount);
+
         const [order] = await conn.query(`
             INSERT INTO orders 
-            (user_id, total_amount, status, shipping_address, payment_method) 
-            VALUES (?, ?, 'pending', 'Default Address', 'Cash on Delivery')
-        `, [userId, total]);
+            (user_id, subtotal, discount_amount, tax_amount, total_amount, status) 
+            VALUES (?, ?, ?, ?, ?, 'processing')
+        `, [userId, total, discount, tax, total]);
 
-        // 3. Move items to order_items
+        // Move items to order_items
         await conn.query(`
             INSERT INTO order_items (order_id, product_id, quantity, price)
             SELECT ?, ci.product_id, ci.quantity, p.price
@@ -151,8 +182,9 @@ exports.placeOrder = async (req, res) => {
             WHERE ci.cart_id = ?
         `, [order.insertId, cartId]);
 
-        // 4. Clear cart
+        // 5. Clear cart and session discounts
         await conn.query(`DELETE FROM cart_items WHERE cart_id = ?`, [cartId]);
+        delete req.session.discount;
         
         await conn.commit();
 

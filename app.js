@@ -68,7 +68,6 @@ app.use('/cart', cartRoutes);
 app.use('/admin', adminRoutes);
 app.use('/promo', promoRoutes);
 
-const orderRoutes = require('./routes/orderRoutes');
 app.use('/orders', orderRoutes); // Accessible at /orders/checkout
 
 app.get('/', async (req, res, next) => {
