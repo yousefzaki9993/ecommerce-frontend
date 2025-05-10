@@ -29,6 +29,60 @@ exports.addProduct = async (req, res, next) => {
 };
 
 
+exports.restockProduct = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const { quantity } = req.body;
+
+        if (!quantity || isNaN(quantity) || quantity <= 0) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Please provide a valid restock quantity'
+            });
+        }
+
+        const product = await Product.getProductDetails(productId);
+
+        if (!product) {
+            return res.status(404).json({ 
+                success: false,
+                message: 'Product not found'
+            });
+        }
+
+        const newQuantity = product.stock_quantity + Number(quantity);
+
+        await Product.updateProduct({
+            productId,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            discount_rate: product.discount_rate,
+            stock_quantity: newQuantity,
+            image: product.image,
+            category: product.category,
+            rating: product.rating,
+            reviews: product.reviews
+        });
+
+        res.json({
+            success: true,
+            message: 'Product restocked successfully',
+            product: { ...product, stock_quantity: newQuantity }
+        });
+
+    } catch (error) {
+        console.error('Error in restockProduct:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Failed to restock product'
+        });
+    }
+};
+
+
+
+
 exports.updateProduct = async (req, res, next) => {
     try {
         const productId = req.params.productId;

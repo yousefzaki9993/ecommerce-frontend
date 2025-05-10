@@ -2,156 +2,384 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Low Stock Products</title>
-    <link rel="stylesheet" href="/css/admin.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Low Stock Alert | Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --sidebar-width: 250px;
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+        
         body {
-            display: flex;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        .sidebar {
-            width: 220px;
-            background-color: #2c3e50;
-            color: white;
-            height: 100vh;
-            position: fixed;
-            padding: 20px;
-        }
-
-        .sidebar h2 {
-            margin-bottom: 30px;
-        }
-
-        .sidebar a {
-            color: white;
-            text-decoration: none;
-            display: block;
-            padding: 10px 0;
-        }
-
-        .sidebar a:hover {
-            background-color: #34495e;
-        }
-
-        .main-content {
-            margin-left: 220px;
-            padding: 20px;
-            flex-grow: 1;
-            background-color: #f4f4f4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
             min-height: 100vh;
         }
-
-        header {
-            background-color: #2980b9;
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--primary-color);
             color: white;
-            padding: 15px;
-            font-size: 20px;
+            min-height: 100vh;
+            position: fixed;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .sidebar-nav a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            margin: 5px 0;
+            transition: all 0.2s;
+        }
+        
+        .sidebar-nav a:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            padding-left: 25px;
+        }
+        
+        .sidebar-nav a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .page-header {
+            background-color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .page-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--primary-color);
+        }
+        
+        .page-header .badge {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             margin-bottom: 20px;
         }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        
+        .card-header {
             background-color: white;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 600;
+            padding: 15px 20px;
         }
-
-        table th, table td {
-            padding: 12px;
-            border: 1px solid #ccc;
-            text-align: center;
+        
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
         }
-
+        
+        table {
+            margin-bottom: 0;
+        }
+        
         table th {
-            background-color: #3498db;
-            color: white;
+            background-color: #f8f9fa;
+            font-weight: 600;
+            padding: 12px 15px;
         }
-
-        .alert {
-            color: red;
-            font-weight: bold;
+        
+        table td {
+            padding: 12px 15px;
+            vertical-align: middle;
         }
-
+        
+        .product-img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .low-stock {
+            background-color: #fff8f8;
+        }
+        
+        .low-stock td:first-child {
+            border-left: 3px solid var(--danger-color);
+        }
+        
+        .stock-alert {
+            color: var(--danger-color);
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
         footer {
-            background-color: #2c3e50;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            position: relative;
-            bottom: 0;
-            width: 100%;
+            background-color: white;
+            padding: 15px 20px;
             margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block !important;
+            }
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-right: 15px;
         }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
-        <h2>Admin Panel</h2>
-        <a href="/admin/dashboard">Dashboard</a>
-        <a href="/admin/orders">Orders</a>
-        <a href="/admin/inventory">Inventory</a>
-        <a href="/admin/products">Products</a>
-        <a href="/admin/logout">Logout</a>
+        <div class="sidebar-header">
+            <h2><i class="fas fa-cog"></i> Admin Panel</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/admin/orders"><i class="fas fa-shopping-bag"></i> Orders</a>
+            <a href="/admin/inventory" class="active"><i class="fas fa-boxes"></i> Inventory</a>
+            <a href="/admin/products"><i class="fas fa-tags"></i> Products</a>
+            <a href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
     </div>
 
     <div class="main-content">
-        <header>📦 Low Stock Alert</header>
+        <div class="page-header">
+            <div>
+                <button class="mobile-menu-btn d-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1><i class="fas fa-exclamation-triangle me-2"></i> Low Stock Alert</h1>
+            </div>
+            <span class="badge bg-danger" id="lowStockCount">0 items</span>
+        </div>
 
-        <table id="lowStockTable">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Product Name</th>
-                    <th>Category</th>
-                    <th>Stock Quantity</th>
-                    <th>Alert</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-list me-2"></i> Products List</span>
+                <div>
+                    <span class="me-3">Threshold: <strong>10</strong></span>
+                    <button class="btn btn-sm btn-outline-primary" id="refreshBtn">
+                        <i class="fas fa-sync-alt me-1"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover" id="lowStockTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Image</th>
+                            <th>Product Name</th>
+                            <th>Category</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading products...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <footer>
-            &copy; <%= new Date().getFullYear() %> E-Commerce Admin Panel. All rights reserved.
+        <footer class="text-center">
+            &copy; <span id="currentYear"></span> E-Commerce Admin Panel. All rights reserved.
         </footer>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Set current year in footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+        
+        // Load low stock products
         async function loadLowStockProducts() {
             try {
                 const response = await fetch('/products/api/all');
                 const products = await response.json();
                 const lowStock = products.filter(p => p.stock_quantity < 10);
                 const tableBody = document.querySelector("#lowStockTable tbody");
-
+                
+                // Update low stock count
+                document.getElementById('lowStockCount').textContent = 
+                    `${lowStock.length} ${lowStock.length === 1 ? 'item' : 'items'}`;
+                
                 tableBody.innerHTML = "";
-
+                
+                if (lowStock.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-success">
+                                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                                <h5>All stock levels are healthy!</h5>
+                                <p class="text-muted">No products below the threshold</p>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
                 lowStock.forEach(product => {
                     const row = document.createElement('tr');
+                    row.className = 'low-stock';
                     row.innerHTML = `
-                        <td><img src="/images/products/${product.image}" alt="${product.name}" width="50"></td>
+                        <td>
+                            <img src="public/assets/${product.image || 'default-product.jpg'}" 
+                                 alt="${product.name}" class="product-img">
+                        </td>
                         <td>${product.name}</td>
-                        <td>${product.category}</td>
+                        <td>${product.category || 'Uncategorized'}</td>
                         <td>${product.stock_quantity}</td>
-                        <td class="alert">⚠️ Low Stock</td>
-                        <td><a href="/admin/products/edit/${product.product_id}">✏️ Edit</a></td>
+                        <td class="stock-alert">
+                            <i class="fas fa-exclamation-circle me-1"></i> Low Stock
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-success action-btn ms-2 restock-btn"
+                                    data-id="${product.product_id}">
+                                <i class="fas fa-plus-circle me-1"></i> Restock
+                            </button>
+                        </td>
                     `;
                     tableBody.appendChild(row);
                 });
+                
+            // Add event listeners to restock buttons
+            document.querySelectorAll('.restock-btn').forEach(btn => {
+                btn.addEventListener('click', async function () {
+                    const productId = this.getAttribute('data-id');
+                    const quantity = 10;
 
-                if (lowStock.length === 0) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `<td colspan="6">✅ All stock levels are healthy!</td>`;
-                    tableBody.appendChild(row);
-                }
+                    try {
+                        const response = await fetch(`/products/${productId}/restock`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ quantity })
+                        });
 
+                        const data = await response.json();
+
+                        if (response.ok && data.success) {
+                            alert(`✅ Product ${productId} restocked successfully.`);
+                            // Optional: update the UI with new stock value if returned
+                            if (data.product?.stock_quantity !== undefined) {
+                                const stockDisplay = document.querySelector(`#stock-${productId}`);
+                                if (stockDisplay) {
+                                    stockDisplay.textContent = data.product.stock_quantity;
+                                }
+                            }
+                        } else {
+                            alert(`❌ Failed to restock: ${data.message}`);
+                        }
+                    } catch (error) {
+                        console.error('Restock Error:', error);
+                        alert('❌ An error occurred while restocking the product.');
+                    }
+                });
+            });
+
+                
             } catch (err) {
                 console.error("Error loading products", err);
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                            <h5>Error loading products</h5>
+                            <p class="text-muted">Please try again later</p>
+                        </td>
+                    </tr>
+                `;
             }
         }
-
+        
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', loadLowStockProducts);
+        
+        // Initial load
         loadLowStockProducts();
     </script>
 </body>

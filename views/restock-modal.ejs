@@ -1,0 +1,73 @@
+<div class="modal fade" id="restockModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Restock Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <img id="restockProductImage" src="" alt="Product Image" 
+                         class="img-thumbnail" style="max-height: 200px;">
+                </div>
+                <form id="restockForm">
+                    <input type="hidden" id="restockProductId">
+                    <div class="mb-3">
+                        <label for="restockQuantity" class="form-label">Quantity to Add</label>
+                        <input type="number" class="form-control" id="restockQuantity" 
+                               min="1" value="10" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus-circle me-1"></i> Confirm Restock
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const restockModal = new bootstrap.Modal('#restockModal');
+    let currentRestockProductId = null;
+    
+    async function showRestockModal(productId, productImage) {
+        currentRestockProductId = productId;
+        
+        document.getElementById('restockProductImage').src = 
+            `public/assets/${productImage || 'default-product.jpg'}`;
+
+        restockModal.show();
+    }
+    
+    document.getElementById('restockForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const quantity = parseInt(document.getElementById('restockQuantity').value);
+        const productId = currentRestockProductId;
+        
+        try {
+            const response = await fetch(`/api/products/${productId}/restock`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quantity })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                alert('Product restocked successfully!');
+                restockModal.hide();
+                loadInventoryData(); 
+            } else {
+                throw new Error(data.message || 'Failed to restock');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error: ' + error.message);
+        }
+    });
+</script>

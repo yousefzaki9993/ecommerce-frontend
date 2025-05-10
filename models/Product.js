@@ -13,6 +13,10 @@ class Product {
         return products;
     }
     
+
+    
+
+
     static async getRelatedReviews(id) {
         const [reviews] = await pool.query('SELECT * FROM reviews where product_id=?', id);
         return reviews;
@@ -22,6 +26,8 @@ class Product {
         const [product] = await pool.query('SELECT * FROM products where product_id=?', id);
         return product[0];
     }
+
+
 
     static async addReview({ productId, userId, rating, title, review }) {
         const connection = await pool.getConnection();
@@ -45,6 +51,8 @@ class Product {
         connection.release();
 
     }
+
+
 
 
     static async addProduct(productData) {
