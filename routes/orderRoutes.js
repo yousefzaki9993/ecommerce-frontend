@@ -118,7 +118,6 @@ router.get('/orders/:id', async (req, res) => {
 router.post('/place-order', async (req, res) => {
     const conn = await pool.getConnection();
     try {
-        // 1. Destructure and validate input
         const { 
             shippingAddress, 
             paymentMethod,
@@ -128,14 +127,12 @@ router.post('/place-order', async (req, res) => {
         const cartId = req.session.cartId;
         const userId = req.session.userData?.user?.user_id;
 
-        // 2. Validate required fields
         const errors = [];
         if (!cartId) errors.push("Missing cart session");
         if (!userId) errors.push("User not authenticated");
         if (!shippingAddress?.trim()) errors.push("Shipping address required");
         if (!paymentMethod) errors.push("Payment method required");
 
-        // 3. Special validation for credit card payments
         if (paymentMethod === 'Credit/Debit Card') {
             if (!paymentDetails.cardNumber || paymentDetails.cardNumber.replace(/\s/g, '').length < 15) {
                 errors.push("Valid 16-digit card number required");
@@ -155,7 +152,6 @@ router.post('/place-order', async (req, res) => {
 
         await conn.beginTransaction();
 
-        // 4. Calculate order total (using your existing table structure)
         const [[{total}]] = await conn.query(`
             SELECT SUM(p.price * ci.quantity) AS total
             FROM cart_items ci
@@ -163,14 +159,12 @@ router.post('/place-order', async (req, res) => {
             WHERE ci.cart_id = ?
         `, [cartId]);
 
-        // 5. Create order record (simplified without subtotal/tax)
         const [order] = await conn.query(`
             INSERT INTO orders 
             (user_id, total_amount, status, shipping_address, payment_method) 
             VALUES (?, ?, 'processing', ?, ?)
         `, [userId, total, shippingAddress, paymentMethod]);
 
-        // 6. Save payment details if credit card
         if (paymentMethod === 'Credit/Debit Card' && paymentDetails) {
             const [month, year] = paymentDetails.cardExpiry.split('/');
             await conn.query(`
@@ -186,7 +180,6 @@ router.post('/place-order', async (req, res) => {
             ]);
         }
 
-        // 7. Transfer cart items
         await conn.query(`
             INSERT INTO order_items (order_id, product_id, quantity, price)
             SELECT ?, ci.product_id, ci.quantity, p.price
@@ -195,7 +188,6 @@ router.post('/place-order', async (req, res) => {
             WHERE ci.cart_id = ?
         `, [order.insertId, cartId]);
 
-        // 8. Clear cart and commit
         await conn.query(`DELETE FROM cart_items WHERE cart_id = ?`, [cartId]);
         await conn.commit();
 
@@ -220,7 +212,6 @@ router.post('/place-order', async (req, res) => {
     }
 });
 
-// Helper function to determine card type
 function getCardType(cardNumber) {
     const num = cardNumber.replace(/\s/g, '');
     if (/^4/.test(num)) return 'VISA';

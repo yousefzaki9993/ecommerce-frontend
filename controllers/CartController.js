@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const Cart = require('../models/Cart');
 const CartItem = require('../models/CartItem');
+const { getShippingFee } = require('../utils/shipping');
 const { subscribe } = require('../routes/productRoutes');
 let discount = require('../models/PromoCode').discount;
 
@@ -25,6 +26,18 @@ exports.addToCart = async (req, res) => {
         await CartItem.addItem(cartId, req.body.productId, 1);
         
         res.json({ success: true });
+    } catch (error) {
+        console.log(error);
+        res.status(400).json({ success: false, error: error.message });
+    }
+};
+
+exports.checkItem = async (req, res) => {
+    try {
+        const cartId = req.session.cartId;
+        const exists = await CartItem.checkItem(cartId, req.body.productId);
+        
+        res.json({ exists: exists });
     } catch (error) {
         console.log(error);
         res.status(400).json({ success: false, error: error.message });
@@ -85,6 +98,17 @@ exports.updateCartItemQuantity = (req, res) => {
     }
 };
 
+exports.isEmpty = async (req, res, next) => {
+    try {
+        console.log('ooooooooooooo');
+        const empty = await Cart.isCartEmpty(req.session.cartId);
+        res.json({ isEmpty: empty });
+    } catch (err) {
+        next(err);
+    }
+};
+
+
 exports.applyDiscount = async (req, res) => {
     try {
         const { promoCode } = req.body;
@@ -114,7 +138,6 @@ exports.renderCheckout = async (req, res) => {
         const cartId = req.session.cartId;
         let items = await CartItem.getByCartId(cartId);
         
-        // Convert all prices to numbers
         items = items.map(item => ({
             ...item,
             price: Number(item.price),
@@ -122,18 +145,19 @@ exports.renderCheckout = async (req, res) => {
         }));
 
         const subtotal = await Cart.getTotalPrice(cartId);
-        const taxRate = 0.08;
-        const discount = req.session.discount || 0; // Get from session
-        const tax = (subtotal - discount) * taxRate;
+        const taxRate = 0.14;
+        const discount = req.session.discount || 0;
+        const tax = (subtotal) * taxRate;
         const total = subtotal - discount + tax;
+        const shippingfee = req.session.shippingFee || 0;
 
         res.render('checkout', {
             items,
             subtotal: Number(subtotal),
             tax: Number(tax),
             total: Number(total),
-            shipping: 0.00,
-            discount: Number(discount) // Pass to view
+            shipping: Number(shippingfee),
+            discount: Number(discount) 
         });
     } catch (error) {
         console.error(error);
@@ -148,10 +172,14 @@ exports.placeOrder = async (req, res) => {
         const cartId = req.session.cartId;
         const userId = req.session.userId || req.session.userData?.user?.user_id;
         const discount = req.session.discount || 0; // Get discount from session
+        //const { country, state } = req.body;
 
         if (!cartId || !userId) {
             throw new Error("Missing cart or user session");
         }
+
+        const shippingFee = getShippingFee(country, state);
+        console.log('Shipping Fee:', shippingFee);
 
         await conn.beginTransaction();
 
@@ -163,7 +191,7 @@ exports.placeOrder = async (req, res) => {
             WHERE ci.cart_id = ?
         `, [cartId]);
 
-        const tax = (subtotal - discount) * 0.08;
+        const tax = subtotal * 0.14;
         const total = subtotal - discount + tax;
         console.log(total, discount);
 
@@ -182,7 +210,6 @@ exports.placeOrder = async (req, res) => {
             WHERE ci.cart_id = ?
         `, [order.insertId, cartId]);
 
-        // 5. Clear cart and session discounts
         await conn.query(`DELETE FROM cart_items WHERE cart_id = ?`, [cartId]);
         delete req.session.discount;
         
@@ -202,6 +229,32 @@ exports.placeOrder = async (req, res) => {
         });
     } finally {
         conn.release();
+    }
+};
+
+
+exports.storeShippingInfo = (req, res) => {
+    try {
+        const { country, state } = req.body;
+
+        req.session.shippingInfo = { country, state };
+
+        const shippingFee = getShippingFee(country, state);
+        console.log('Shipping Fee:', shippingFee);
+
+        req.session.shippingFee = shippingFee;
+
+        res.json({
+            success: true,
+            fee: shippingFee,
+            message: 'ok',
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+        });
     }
 };
 

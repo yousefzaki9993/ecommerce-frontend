@@ -120,8 +120,7 @@ async function updateCartTotal() {
 
     const { subtotal } = data;
     
-    // Calculate tax (sample rate)
-    var taxRate = 0.08; 
+    var taxRate = 0.14; //vat in egypt
     var tax = subtotal * taxRate;
     
     //var discount = 20.00;
@@ -192,10 +191,29 @@ async function clearCart() {
     }
 }
 
-// Proceed to checkout
-function proceedToCheckout() {
-    window.location.href = '/cart/checkout';  // Must match the route exactly
+async function proceedToCheckout() {
+    try {
+        const response = await fetch('/user/checklogin');
+        const result = await response.json();
+
+        if (result.isLogged){
+            const checkEmpty = await fetch('/cart/isEmpty');
+            const res = await checkEmpty.json();
+            console.log('omar:');
+            console.log(res.isEmpty);
+            if(res.isEmpty)
+                alert('Cart is Empty');
+            else
+                window.location.href = '/cart/checkout';
+        }
+        else
+            window.location.href = '/user/login';
+
+    } catch (error) {
+        console.error('Error during checkout:', error);
+    }
 }
+
 
 // Continue shopping
 function continueShopping() {

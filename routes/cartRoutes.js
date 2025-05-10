@@ -17,6 +17,10 @@ router.get('/count', cartController.getCount);
 router.get('/subtotal', cartController.getCartSubtotal);
 router.post('/update/:id', cartController.updateCartItemQuantity);
 router.get('/checkout', cartController.renderCheckout);
+router.post('/checkItem', cartController.checkItem);
+router.get('/isEmpty', cartController.isEmpty);
+router.post('/storeShippingInfo', cartController.storeShippingInfo);
+
 //router.get('/usercart', cartController.getUserCart);
 
 

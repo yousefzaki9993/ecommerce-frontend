@@ -298,3 +298,15 @@ exports.handleChangePass = async (req, res, next) => {
         next(err);
     }
 };
+
+exports.isLoggedIn = (req,res, next) => {
+    try{
+        if(req.session.userData)
+            res.json({ isLogged: true });
+        else    
+            res.json({ isLogged: false });
+    }catch(err){
+        next(err);
+    }
+
+};

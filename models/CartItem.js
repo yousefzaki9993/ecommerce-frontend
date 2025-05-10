@@ -21,6 +21,15 @@ class CartItem {
         );
     }
 
+    static async checkItem(cartId, productId) {
+        const [rows] = await pool.query(
+            `SELECT 1 FROM cart_items WHERE cart_id = ? AND product_id = ? LIMIT 1`,
+            [cartId, productId]
+        );
+        return rows.length > 0;
+    }
+    
+
     static async removeItem(cartItemId) {
         await pool.query(
             'DELETE FROM cart_items WHERE cart_item_id = ?',

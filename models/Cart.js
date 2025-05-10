@@ -84,6 +84,14 @@ class Cart {
         }
     }
     
+    static async isCartEmpty(cartId) {
+        const [rows] = await pool.query(
+            `SELECT 1 FROM cart_items WHERE cart_id = ? LIMIT 1`,
+            [cartId]
+        );
+        return rows.length === 0;
+    }
+    
     
 /*
     static async findOrCreate(sessionId, userId = null) {
