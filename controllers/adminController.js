@@ -31,6 +31,26 @@ exports.renderInventory = async (req, res, next) => {
 
 
 
+exports.handleLogout = async (req, res, next) => {
+  try {
+      res.clearCookie('admin_token', {
+          httpOnly: true,
+          sameSite: 'strict'
+      });
+
+      req.session?.destroy(err => {
+          if (err) {
+              return next(err);
+          }
+          res.redirect('/');
+      });
+  } catch (error) {
+      next(error);
+  }
+};
+
+
+
 exports.getAllOrders = async (req, res) => {
     try {
       const filters = {

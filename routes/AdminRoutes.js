@@ -10,8 +10,7 @@ const AdminController = require('../controllers/adminController');
 router.get('/inventory', verifyAdmin ,AdminController.renderInventory);
 router.get('/orders', verifyAdmin, AdminController.renderOrders);
 router.get('/products', verifyAdmin , AdminController.renderProducts);
-
-
+router.get('/logout', AdminController.handleLogout);
 
 router.get('/login', (req, res) => {
     res.render('admin/login', { error: null, success: null });
