@@ -7,15 +7,15 @@ const router = express.Router();
 const Cart = require('../models/Cart');
 const CartItem = require('../models/CartItem');
 const CartController = require('../controllers/CartController');
+const verifyAdmin = require('../middlewares/auth').verifyAdmin;
 
 
-orderRoutes.get('/api/all', AdminController.getAllOrders);
-orderRoutes.get('/api/:id', AdminController.getOrderDetails);
-orderRoutes.put('/api/:id/status', AdminController.updateOrderStatus);
-orderRoutes.get('/', (req, res) => {
+router.get('/api/all', verifyAdmin,AdminController.getAllOrders);
+router.get('/api/:id',verifyAdmin, AdminController.getOrderDetails);
+router.put('/api/:id/status', verifyAdmin, AdminController.updateOrderStatus);
+router.get('/', (req, res) => {
     res.render('products');
 });
-
 
 
 

@@ -2,15 +2,33 @@ const Order = require('../models/Order');
 const Product = require('../models/Product'); 
 
 
-
 exports.renderInventory = async (req, res, next) => {
-    try {
-        const inventory = await Product.getAllProducts(); 
-        res.render('admin/inventory');  
-    } catch (error) {
-        next(error);
-    }
+  try {
+      const inventory = await Product.getAllProducts();
+
+      const totalProducts = inventory.length;
+      const totalInStock = inventory.reduce((sum, item) => sum + item.stock_quantity, 0);
+      const totalLowStock = inventory.filter(item => item.stock_quantity <= 10).length;
+
+
+      const productDropdown = inventory.map(p => ({
+          id: p.product_id,
+          name: p.name
+      }));
+
+      res.render('admin/inventory', {
+          inventory,
+          totalProducts,
+          totalInStock,
+          totalLowStock,
+          productDropdown
+      });
+
+  } catch (error) {
+      next(error);
+  }
 };
+
 
 
 exports.getAllOrders = async (req, res) => {
