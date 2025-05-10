@@ -2,7 +2,6 @@
 
 const jwt = require('jsonwebtoken');
 
-// JWT Authentication Middleware
 function authenticateToken(req, res, next) {
 	const authHeader = req.headers.authorization;
 	if (!authHeader) return res.sendStatus(401);
@@ -17,6 +16,12 @@ function authenticateToken(req, res, next) {
 	});
 
 }
+
+exports.isLoggedIn = (req, res, next) => {
+  if (req.session.userId) return next();
+  res.redirect('/login');
+};
+
 exports.isLoggedIn = (req, res, next) => {
   if (req.session.userId) return next();
   res.redirect('/login');
@@ -31,7 +36,37 @@ function isAuthenticated(req, res, next) {
 	res.redirect('/user/login');
 }
 
+
+function verifyAdmin(req, res, next) {
+    const token = req.cookies.admin_token;
+    console.log("Token:", token);
+
+    if (!token) {
+        console.log("No token found, redirecting to login");
+        return res.redirect('/admin/login');
+    }
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);  
+        console.log("Decoded Token:", decoded);
+
+        if (decoded.role !== 'admin') {
+            console.log("Not an admin, redirecting to login");
+            return res.redirect('/admin/login');
+        }
+
+        req.admin = decoded;
+        next();
+    } catch (err) {
+        console.log("Error verifying token:", err);
+        return res.redirect('/admin/login');
+    }
+}
+
+
+
 module.exports = {
 	authenticateToken,
-	isAuthenticated
+	isAuthenticated,
+	verifyAdmin
 };
