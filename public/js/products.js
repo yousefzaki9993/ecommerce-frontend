@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('priceValue').textContent = this.value;
         });
     }
+
+    if (document.getElementById('priceRange')) {
+        document.getElementById('priceRange').addEventListener('addToCartBtn', addToCart);
+    }
 });
 
 // Load featured products
@@ -365,25 +369,38 @@ async function addToCart(event) {
     console.log(productId);
 
     try {
-        response = await fetch('/cart/add', {
-            method: 'POST',
+        let response = await fetch('/cart/checkItem', {
+            method: 'POST', // ✅ add this
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json' // ✅ needed for JSON body
             },
             body: JSON.stringify({ productId }) 
         });
-        
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            
-            updateCartCount();
-            alert('Item added to cart!');
+
+        let result = await response.json();
+
+        if (result.exists) {
+            alert('Item already in cart');
         } else {
-            alert('Failed to add to cart.');
+            response = await fetch('/cart/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ productId }) 
+            });
+
+            result = await response.json();
+
+            if (result.success) {
+                updateCartCount();
+                alert('Item added to cart!');
+            } else {
+                alert('Failed to add to cart.');
+            }
         }
     } catch (error) {
         console.error('Add to cart failed:', error);
     }
 }
+

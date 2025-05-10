@@ -64,8 +64,6 @@ function initProductThumbnails() {
     
     thumbnails.forEach(function(thumbnail) {
         thumbnail.addEventListener('click', function() {
-            // In a real app, you would swap the main image source
-            // This is just a demonstration
             mainImage.src = thumbnail.src;
             
             // Update active thumbnail
@@ -142,10 +140,7 @@ function initRatingInput() {
     });
 }
 
-// Initialize checkout tabs
 function initCheckoutTabs() {
-    // This would be more complex in a real app with form validation between steps
-    // For now, just demonstrate tab switching
     var continueToPaymentBtn = document.getElementById('continueToPaymentBtn');
     var continueToReviewBtn = document.getElementById('continueToReviewBtn');
     var backToShippingBtn = document.getElementById('backToShippingBtn');
@@ -153,8 +148,15 @@ function initCheckoutTabs() {
     
     if (continueToPaymentBtn) {
         continueToPaymentBtn.addEventListener('click', function(e) {
+            //window.location.href = '/cart/checkout';
             e.preventDefault();
             var paymentTab = new bootstrap.Tab(document.getElementById('payment-tab'));
+            const country = document.getElementById('country').value.trim();
+            const state = document.getElementById('state').value.trim();
+            console.log(country);
+            console.log(state);
+            updateShippingFee(country, state);
+            
             paymentTab.show();
         });
     }
@@ -165,7 +167,6 @@ function initCheckoutTabs() {
             var reviewTab = new bootstrap.Tab(document.getElementById('review-tab'));
             reviewTab.show();
             
-            // In a real app, you would update the review section with the entered data
             updateReviewSection();
         });
     }
@@ -198,7 +199,6 @@ function updateReviewSection() {
     document.getElementById('reviewPaymentMethod').textContent = 'Credit Card ending in 3456';
 }
 
-// Initialize profile picture change
 function initProfilePictureChange() {
     var changeBtn = document.getElementById('changePictureBtn');
     const profileImageInput = document.getElementById('profileImageInput');
@@ -214,3 +214,56 @@ function initProfilePictureChange() {
           }
     });
 }
+
+async function storeShippingInfo(country, state) {
+
+    try {
+        const response = await fetch('/cart/storeShippingInfo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ country, state }),
+        });
+
+        const result = await response.json();
+        console.log('omarr');
+        console.log(result.fee);
+        if (result.success) {
+            console.log('shipping info stored');
+            return result.fee;
+        } else {
+            console.error('Failll');
+        }
+    } catch (error) {
+        console.error('Error storing shipping info:', error);
+    }
+}
+
+async function updateShippingFee(country, state) {
+    try {
+        const shippingFee = await storeShippingInfo(country, state);
+        console.log('omar');
+        console.log(shippingFee);
+
+        const subtotal = document.getElementById('subtotall').textContent.trim();
+        const nsubtotal = parseFloat(subtotal.replace('$', ''));
+
+        const tax = document.getElementById('taxx').textContent.trim();
+        const ntax = parseFloat(tax.replace('$', ''));
+
+        let total = shippingFee + nsubtotal + ntax;
+
+        document.getElementById('shippping').textContent = '$' + shippingFee.toString();
+        document.getElementById('totall').textContent = '$' + total.toString();
+        document.getElementById('shipfee').textContent = '$' + shippingFee.toString();
+        document.getElementById('totalll').textContent = '$' + total.toString();
+
+    } catch (error) {
+        console.error('Error getting shipping fee:', error);
+    }
+}
+
+
+
+
