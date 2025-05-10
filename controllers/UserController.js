@@ -4,13 +4,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Order = require('../models/Order');
 
-// APIs
 exports.apiGetUsers = async (req, res) => {
     const users = await User.getAllUsers();
     res.json(users);
 };
 
-// For rendering view
 exports.renderLogin = (req, res, next) => {
     try {
         if (req.session.userData) {
@@ -51,7 +49,6 @@ exports.renderRegister = (req, res, next) => {
     }
 };
 
-// For logic
 exports.handleLogin = async (req, res, next) => {
     try {
         const { email, password } = req.body;

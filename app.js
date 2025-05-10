@@ -24,10 +24,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: 'secret',
     resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-    }
+    saveUninitialized: true,
+    cookie: { secure: false, maxAge: 1000 * 60 * 60 * 24 } 
+
 }));
 
 
