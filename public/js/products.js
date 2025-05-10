@@ -370,9 +370,9 @@ async function addToCart(event) {
 
     try {
         let response = await fetch('/cart/checkItem', {
-            method: 'POST', // ✅ add this
+            method: 'POST',
             headers: {
-                'Content-Type': 'application/json' // ✅ needed for JSON body
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({ productId }) 
         });
